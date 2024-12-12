@@ -1,0 +1,37 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.threadmonitoring'
+version = '1'
+java {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+}
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'net.bytebuddy:byte-buddy:1.15.3'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.apache.kafka:kafka-clients:3.5.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar{
+    manifest {
+        attributes 'Premain-Class': 'org.threadmonitoring.Main'
+        attributes 'Agentmain-Class' : 'org.threadmonitoring.Main'
+        attributes 'Can-Retransform-Classes': 'true'
+        attributes 'Boot-Class-Path' : 'thread-agent-1.jar'
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it)}
+    }
+}
