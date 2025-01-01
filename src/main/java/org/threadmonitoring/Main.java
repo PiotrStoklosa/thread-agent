@@ -38,6 +38,16 @@ public class Main {
                                 .on(named("execute")))
                 ).installOn(inst);
 
+        new AgentBuilder
+                .Default()
+                .ignore(none())
+                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                .disableClassFormatChanges()
+                .type(isSubTypeOf(java.util.concurrent.Executor.class))
+                .transform((builder, typeDescription, classLoader, module, protectionDomain) ->
+                        builder.visit(Advice.to(ExecutorConstructorAdvice.class)
+                                .on(ElementMatchers.isConstructor()))).installOn(inst);
+
         try {
             System.out.println("Attempting to retransform classes");
             for (Class<?> clazz : inst.getAllLoadedClasses()) {
