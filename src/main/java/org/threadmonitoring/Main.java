@@ -1,20 +1,23 @@
 package org.threadmonitoring;
 
-import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
-
+import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.matcher.ElementMatchers;
-import net.bytebuddy.agent.builder.AgentBuilder;
-import org.threadmonitoring.advices.*;
+import org.threadmonitoring.advices.ExecutorAdvice;
+import org.threadmonitoring.advices.ExecutorConstructorAdvice;
+import org.threadmonitoring.advices.ThreadConstructorAdvice;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
+import java.util.jar.JarFile;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class Main {
 
-    public static void premain(String agentArgs, Instrumentation inst) {
-
-        System.out.println("Starting Thread Agent...");
+    public static void run(Instrumentation inst) throws IOException, ClassNotFoundException {
 
         new AgentBuilder
                 .Default()
@@ -47,6 +50,8 @@ public class Main {
                 .transform((builder, typeDescription, classLoader, module, protectionDomain) ->
                         builder.visit(Advice.to(ExecutorConstructorAdvice.class)
                                 .on(ElementMatchers.isConstructor()))).installOn(inst);
+
+        inst.appendToBootstrapClassLoaderSearch(new JarFile(new File("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib\\thread-agent-1-0.jar")));
 
         try {
             System.out.println("Attempting to retransform classes");

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'org.threadmonitoring'
-version = '1'
+version = '1-0'
 java {
     sourceCompatibility = '11'
     targetCompatibility = '11'
@@ -13,8 +13,8 @@ repositories {
 }
 
 dependencies {
-    implementation('net.bytebuddy:byte-buddy:1.15.3') { exclude group: 'org.slf4j' }
-    implementation('org.apache.kafka:kafka-clients:3.5.1') { exclude group: 'org.slf4j' }
+    implementation('net.bytebuddy:byte-buddy:1.15.3')
+    implementation('org.apache.kafka:kafka-clients:3.5.1')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
@@ -25,13 +25,22 @@ test {
 
 jar {
     manifest {
-        attributes 'Premain-Class': 'org.threadmonitoring.Main'
-        attributes 'Agentmain-Class': 'org.threadmonitoring.Main'
         attributes 'Can-Retransform-Classes': 'true'
-        attributes 'Boot-Class-Path': 'thread-agent-1.jar'
+        attributes 'Boot-Class-Path': 'thread-agent-1-0.jar'
+        attributes 'Class-Path': './libs'
     }
 
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+    destinationDirectory = file("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib")
 }
+task cleanLib(type: Delete) {
+    delete fileTree('C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib')
+}
+
+clean.dependsOn cleanLib
+
+task copyDependencies(type: Copy) {
+    from configurations.runtimeClasspath
+    into "C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib"
+}
+
+jar.finalizedBy(copyDependencies)
