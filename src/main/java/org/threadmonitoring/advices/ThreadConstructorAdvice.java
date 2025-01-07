@@ -4,14 +4,18 @@ package org.threadmonitoring.advices;
 import net.bytebuddy.asm.Advice;
 
 import java.lang.reflect.Executable;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.List;
+
 import java.util.concurrent.Executor;
 
 public final class ThreadConstructorAdvice {
 
     public static int numberOfThreads = 0;
     public static final Map<Long, Executor> threadToExecutorMap = new WeakHashMap<>();
+    public static final List<Thread> threads = new ArrayList<>();
 
     @Advice.OnMethodEnter
     public static void interceptEntry(
@@ -37,7 +41,11 @@ public final class ThreadConstructorAdvice {
                 System.out.println("Created successfully thread named " + args[2]);
                 System.out.println("Already created " + numberOfThreads + " threads");
 
-                Executor executor = ExecutorAdvice.currentExecutor.get();
+                synchronized (threads) {
+                    threads.add(thread);
+                }
+
+                Executor executor = ExecutorExecuteSubmitAdvice.currentExecutor.get();
                 if (executor != null) {
                     synchronized (threadToExecutorMap) {
                         threadToExecutorMap.put(thread.getId(), executor);

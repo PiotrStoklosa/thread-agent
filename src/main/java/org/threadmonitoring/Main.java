@@ -3,9 +3,11 @@ package org.threadmonitoring;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.matcher.ElementMatchers;
-import org.threadmonitoring.advices.ExecutorAdvice;
+import org.threadmonitoring.advices.ExecutorExecuteSubmitAdvice;
 import org.threadmonitoring.advices.ExecutorConstructorAdvice;
 import org.threadmonitoring.advices.ThreadConstructorAdvice;
+import org.threadmonitoring.advices.ThreadStartAdvice;
+import org.threadmonitoring.scanner.ThreadStatusScanner;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +39,8 @@ public class Main {
                 .disableClassFormatChanges()
                 .type(isSubTypeOf(java.util.concurrent.Executor.class))
                 .transform((builder, typeDescription, classLoader, module, protectionDomain) ->
-                        builder.visit(Advice.to(ExecutorAdvice.class)
-                                .on(named("execute")))
+                        builder.visit(Advice.to(ExecutorExecuteSubmitAdvice.class)
+                                .on(named("execute").or(named("submit"))))
                 ).installOn(inst);
 
         new AgentBuilder
@@ -50,6 +52,31 @@ public class Main {
                 .transform((builder, typeDescription, classLoader, module, protectionDomain) ->
                         builder.visit(Advice.to(ExecutorConstructorAdvice.class)
                                 .on(ElementMatchers.isConstructor()))).installOn(inst);
+
+        new AgentBuilder
+                .Default()
+                .ignore(none())
+                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                .disableClassFormatChanges()
+                .type(isSubTypeOf(java.lang.Thread.class))
+                .transform((builder, typeDescription, classLoader, module, protectionDomain) ->
+                        builder.visit(Advice.to(ThreadStartAdvice.class)
+                                .on(named("start")))
+                ).installOn(inst);
+
+        new AgentBuilder
+                .Default()
+                .ignore(none())
+                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                .disableClassFormatChanges()
+                .type(any())
+                .transform((builder, typeDescription, classLoader, module, protectionDomain) ->
+                        builder.visit(Advice.to(ThreadStatusScanner.class)
+                                .on(named("main")
+                                        .and(takesArguments(String[].class))
+                                        .and(isPublic())
+                                        .and(isStatic())))
+                ).installOn(inst);
 
         inst.appendToBootstrapClassLoaderSearch(new JarFile(new File("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib\\thread-agent-1-0.jar")));
 
