@@ -2,7 +2,10 @@ package org.threadmonitoring.scanner;
 
 import net.bytebuddy.asm.Advice;
 
+import java.util.Arrays;
+
 import static org.threadmonitoring.advices.ThreadConstructorAdvice.threads;
+import static org.threadmonitoring.model.ExecutorModel.EXECUTOR_MAP;
 
 public class ThreadStatusScanner implements Runnable {
 
@@ -32,6 +35,11 @@ public class ThreadStatusScanner implements Runnable {
                     Thread.State state = thread.getState();
                     System.out.println("Thread " + thread.getName() + " has state: " + state);
                 }
+            }
+            synchronized (EXECUTOR_MAP) {
+                EXECUTOR_MAP.forEach(((executor, executorModel) -> {
+                    System.out.println("Map with Executor: " + Arrays.toString(executorModel.getConstructorStackTrace()) + executorModel.isActive());
+                }));
             }
             try {
                 Thread.sleep(100);
