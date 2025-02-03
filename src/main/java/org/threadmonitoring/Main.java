@@ -3,16 +3,14 @@ package org.threadmonitoring;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.matcher.ElementMatchers;
-import org.threadmonitoring.advices.ExecutorExecuteSubmitAdvice;
-import org.threadmonitoring.advices.ExecutorConstructorAdvice;
-import org.threadmonitoring.advices.ThreadConstructorAdvice;
-import org.threadmonitoring.advices.ThreadStartAdvice;
+import org.threadmonitoring.advices.*;
 import org.threadmonitoring.scanner.ThreadStatusScanner;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.util.concurrent.Executor;
 import java.util.jar.JarFile;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
@@ -75,7 +73,20 @@ public class Main {
                                 .on(named("main")
                                         .and(takesArguments(String[].class))
                                         .and(isPublic())
-                                        .and(isStatic())))
+                                        .and(isStatic()))))
+                .installOn(inst);
+
+
+
+        new AgentBuilder
+                .Default()
+                .ignore(none())
+                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                .disableClassFormatChanges()
+                .type(isSubTypeOf(Executor.class))
+                .transform((builder, typeDescription, classLoader, module, protectionDomain) ->
+                        builder.visit(Advice.to(ExecutorShutdownAdvice.class)
+                                .on(named("shutdown")))
                 ).installOn(inst);
 
         inst.appendToBootstrapClassLoaderSearch(new JarFile(new File("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib\\thread-agent-1-0.jar")));
