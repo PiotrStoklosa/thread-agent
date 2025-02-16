@@ -7,8 +7,9 @@ public class ExecutorModel {
 
     public static final Map<Executor, ExecutorModel> EXECUTOR_MAP = new HashMap<>();
 
-    private StackTraceElement[] constructorStackTrace;
-    private final Set<String> submitPlaces = new HashSet<>();
+    private final StackTraceElement[] constructorStackTrace;
+    private final Map<String, Integer> submitPlaces = new HashMap<>();
+    private final Map<String, Integer> executePlaces = new HashMap<>();
     private boolean active = true;
 
     public ExecutorModel(StackTraceElement[] constructorStackTrace) {
@@ -16,11 +17,11 @@ public class ExecutorModel {
     }
 
     public void addSubmitPlace(String place) {
-        submitPlaces.add(place);
+        submitPlaces.merge(place, 1, Integer::sum);
     }
 
-    public void addConstructorStackTrace(StackTraceElement[] stackTrace) {
-        constructorStackTrace = stackTrace;
+    public void addExecutePlace(String place) {
+        executePlaces.merge(place, 1, Integer::sum);
     }
 
     public StackTraceElement[] getConstructorStackTrace() {
@@ -28,8 +29,12 @@ public class ExecutorModel {
     }
 
 
-    public Set<String> getSubmitPlaces() {
+    public Map<String, Integer> getSubmitPlaces() {
         return submitPlaces;
+    }
+
+    public Map<String, Integer> getExecutePlaces() {
+        return executePlaces;
     }
 
     public boolean isActive() {

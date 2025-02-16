@@ -39,6 +39,9 @@ public class ThreadStatusScanner implements Runnable {
             synchronized (EXECUTOR_MAP) {
                 EXECUTOR_MAP.forEach(((executor, executorModel) -> {
                     System.out.println("Map with Executor: " + Arrays.toString(executorModel.getConstructorStackTrace()) + executorModel.isActive());
+                    executorModel.getExecutePlaces().forEach((key, value) -> System.out.println(key + " = " + value));
+                    System.out.println("-----");
+                    executorModel.getSubmitPlaces().forEach((key, value) -> System.out.println(key + " = " + value));
                 }));
             }
             try {
