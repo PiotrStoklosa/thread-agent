@@ -22,7 +22,11 @@ public class ExecutorExecuteSubmitAdvice {
     @Advice.OnMethodEnter
     public static void onEnter(@Advice.Origin String method, @Advice.This Executor executor) {
 
+ // wait sleep, notify itd
+        // lock unlock signal signalall
 
+        // Main 78 Thread1 (Recznie, Executora) lock
+        // 
 
         System.out.println("Entering");
         currentExecutor.set(executor);
@@ -39,6 +43,7 @@ public class ExecutorExecuteSubmitAdvice {
             }
         }
 
+
         frame = Optional.ofNullable(foundFrame.get());
 
         if (frame.isPresent()) {
@@ -46,6 +51,7 @@ public class ExecutorExecuteSubmitAdvice {
             System.out.println("Place: " + f);
             if (method.contains("submit")) {
                 EXECUTOR_MAP.get(executor).addSubmitPlace(f);
+                //
             } else {
                 EXECUTOR_MAP.get(executor).addExecutePlace(f);
             }

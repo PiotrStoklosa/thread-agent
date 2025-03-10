@@ -2,7 +2,8 @@ package org.threadmonitoring.advices;
 
 
 import net.bytebuddy.asm.Advice;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.Map;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 public final class ThreadConstructorAdvice {
+
+    public static final Logger logger = LogManager.getLogger(ThreadConstructorAdvice.class);
 
     public static int numberOfThreads = 0;
     public static final Map<Long, Executor> threadToExecutorMap = new WeakHashMap<>();
@@ -24,7 +27,7 @@ public final class ThreadConstructorAdvice {
     ) {
         if (args != null) {
             if (args.length == 6) {
-                System.out.println("Creating thread named " + args[2]);
+                logger.info("Creating thread named {}", args[2]);
             }
         }
     }
@@ -38,8 +41,8 @@ public final class ThreadConstructorAdvice {
         if (args != null) {
             if (args.length == 6) {
                 numberOfThreads++;
-                System.out.println("Created successfully thread named " + args[2]);
-                System.out.println("Already created " + numberOfThreads + " threads");
+                logger.info("Created successfully thread named {}", args[2]);
+                logger.info("Already created {} threads", numberOfThreads);
 
                 synchronized (threads) {
                     threads.add(thread);
@@ -50,9 +53,9 @@ public final class ThreadConstructorAdvice {
                     synchronized (threadToExecutorMap) {
                         threadToExecutorMap.put(thread.getId(), executor);
                     }
-                    System.out.println("Thread " + thread.getId() + " created by Executor: " + executor);
+                    logger.info("Thread {} created by Executor: {}", thread.getId(), executor);
                 } else {
-                    System.out.println("Thread created without Executor: " + thread.getId());
+                    logger.info("Thread created without Executor: {}", thread.getId());
                 }
 
             }
