@@ -79,7 +79,7 @@ public class Main {
                 .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
                 .with(AgentBuilder.TypeStrategy.Default.REBASE);
 
-        agentBuilder
+        AgentBuilder.Identified.Extendable a = agentBuilder
                 .type(ElementMatchers.is(Thread.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
@@ -98,7 +98,7 @@ public class Main {
                                 .on(named("execute").or(named("submit"))))
                 ).installOn(inst);*/
 
-        agentBuilder
+        a = a
                 .type(isSubTypeOf(java.util.concurrent.Executor.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
@@ -116,13 +116,13 @@ public class Main {
                         builder.visit(Advice.to(ExecutorConstructorAdvice.class)
                                 .on(ElementMatchers.isConstructor()))).installOn(inst);*/
 
-        agentBuilder
+        a = a
                 .type(isSubTypeOf(java.util.concurrent.Executor.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
                                 .include(Main.class.getClassLoader())
                                 .advice(ElementMatchers.isConstructor(), ExecutorConstructorAdvice.class.getName()
-                                )).installOn(inst);
+                                ));
 
 /*        new AgentBuilder
                 .Default()
@@ -135,7 +135,7 @@ public class Main {
                                 .on(named("start")))
                 ).installOn(inst);*/
 
-        agentBuilder
+        a = a
                 .type(isSubTypeOf(java.lang.Thread.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
@@ -180,7 +180,7 @@ public class Main {
                                 .on(named("shutdown")))
                 ).installOn(inst);*/
 
-        agentBuilder
+        a = a
                 .type(isSubTypeOf(Executor.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
@@ -205,7 +205,7 @@ public class Main {
                 )
                 .installOn(inst);*/
 
-        agentBuilder
+        a = a
                 .type(isSubTypeOf(Lock.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
@@ -219,7 +219,7 @@ public class Main {
                                 ));
 
         // inst.appendToBootstrapClassLoaderSearch(new JarFile(new File("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib\\thread-agent-1-0.jar")));
-        agentBuilder.installOn(inst);
+        a.installOn(inst);
         try {
             System.out.println("Attempting to retransform classes");
             for (Class<?> clazz : inst.getAllLoadedClasses()) {
