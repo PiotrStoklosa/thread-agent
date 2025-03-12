@@ -46,7 +46,7 @@ public class Main {
                     MethodType.class,
                     String.class,
                     Object[].class));
-            Method setBootstrap = bootstrapAgentClass.getMethod("setBootstrap", MethodHandle.class);
+            Method setBootstrap = bootstrapAgentClass.getDeclaredMethod("setBootstrap", MethodHandle.class);
             setBootstrap.invoke(null, bootstrapMethod);
             bootstrap = bootstrapAgentClass.getDeclaredMethod("bootstrap", MethodHandles.Lookup.class,
                     String.class,
@@ -56,7 +56,7 @@ public class Main {
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-
+ // zmienic na jeden Agent Builder
 
 
 /*        new AgentBuilder
@@ -70,17 +70,22 @@ public class Main {
                         .visit(Advice.to(ThreadConstructorAdvice.class)
                                 .on(ElementMatchers.isConstructor()))).installOn(inst);*/
 
-        new AgentBuilder
+        AgentBuilder agentBuilder = new AgentBuilder
                 .Default()
                 .ignore(none())
-                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .disableClassFormatChanges()
+                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                .with(AgentBuilder.RedefinitionStrategy.DiscoveryStrategy.Reiterating.INSTANCE)
+                .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
+                .with(AgentBuilder.TypeStrategy.Default.REBASE);
+
+        agentBuilder
                 .type(ElementMatchers.is(Thread.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
                                 .include(Main.class.getClassLoader())
                                 .advice(ElementMatchers.isConstructor(), ThreadConstructorAdvice.class.getName()
-                )).installOn(inst);
+                ));
 
 /*        new AgentBuilder
                 .Default()
@@ -93,17 +98,13 @@ public class Main {
                                 .on(named("execute").or(named("submit"))))
                 ).installOn(inst);*/
 
-        new AgentBuilder
-                .Default()
-                .ignore(none())
-                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-                .disableClassFormatChanges()
+        agentBuilder
                 .type(isSubTypeOf(java.util.concurrent.Executor.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
                                 .include(Main.class.getClassLoader())
                                 .advice(ElementMatchers.isMethod().and(ElementMatchers.named("execute").or(named("submit"))), ExecutorExecuteSubmitAdvice.class.getName()
-                )).installOn(inst);
+                ));
 
 /*        new AgentBuilder
                 .Default()
@@ -115,11 +116,7 @@ public class Main {
                         builder.visit(Advice.to(ExecutorConstructorAdvice.class)
                                 .on(ElementMatchers.isConstructor()))).installOn(inst);*/
 
-        new AgentBuilder
-                .Default()
-                .ignore(none())
-                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-                .disableClassFormatChanges()
+        agentBuilder
                 .type(isSubTypeOf(java.util.concurrent.Executor.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
@@ -138,17 +135,13 @@ public class Main {
                                 .on(named("start")))
                 ).installOn(inst);*/
 
-        new AgentBuilder
-                .Default()
-                .ignore(none())
-                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-                .disableClassFormatChanges()
+        agentBuilder
                 .type(isSubTypeOf(java.lang.Thread.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
                                 .include(Main.class.getClassLoader())
                                 .advice(ElementMatchers.isMethod().and(ElementMatchers.named("start")), ThreadStartAdvice.class.getName()
-                                )).installOn(inst);
+                                ));
 
 /*        new AgentBuilder
                 .Default()
@@ -187,17 +180,13 @@ public class Main {
                                 .on(named("shutdown")))
                 ).installOn(inst);*/
 
-        new AgentBuilder
-                .Default()
-                .ignore(none())
-                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-                .disableClassFormatChanges()
+        agentBuilder
                 .type(isSubTypeOf(Executor.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
                                 .include(Main.class.getClassLoader())
                                 .advice(ElementMatchers.isMethod().and(ElementMatchers.named("shutdown")), ExecutorShutdownAdvice.class.getName()
-                                )).installOn(inst);
+                                ));
 
 
 /*        new AgentBuilder
@@ -216,11 +205,7 @@ public class Main {
                 )
                 .installOn(inst);*/
 
-        new AgentBuilder
-                .Default()
-                .ignore(none())
-                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-                .disableClassFormatChanges()
+        agentBuilder
                 .type(isSubTypeOf(Lock.class))
                 .transform(
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
@@ -231,11 +216,10 @@ public class Main {
                         new AgentBuilder.Transformer.ForAdvice(Advice.withCustomMapping().bootstrap(bootstrap))
                                 .include(Main.class.getClassLoader())
                                 .advice(ElementMatchers.isMethod().and(ElementMatchers.named("unlock")), UnlockAdvice.class.getName()
-                                ))
-                .installOn(inst);
+                                ));
 
         // inst.appendToBootstrapClassLoaderSearch(new JarFile(new File("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib\\thread-agent-1-0.jar")));
-
+        agentBuilder.installOn(inst);
         try {
             System.out.println("Attempting to retransform classes");
             for (Class<?> clazz : inst.getAllLoadedClasses()) {
@@ -258,6 +242,7 @@ public class Main {
             MethodHandle aStatic = MethodHandles.lookup().findStatic(adviceClass, adviceMethodName, adviceMethodType);
             return new ConstantCallSite(aStatic);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -268,6 +253,7 @@ public class Main {
             if (in != null) {
                 classBytes = inputStreamToBytes(in);
             } else {
+                System.out.println("Classloader resource not found org.threadmonitoring.bootstrap.BootstrapAgent");
                 throw new IOException("Classloader resource not found org.threadmonitoring.bootstrap.BootstrapAgent");
             }
             return classBytes;
