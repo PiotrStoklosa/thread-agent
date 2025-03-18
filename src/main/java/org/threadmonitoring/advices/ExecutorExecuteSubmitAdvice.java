@@ -1,34 +1,24 @@
 package org.threadmonitoring.advices;
 
 import net.bytebuddy.asm.Advice;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 import static org.threadmonitoring.model.ExecutorModel.EXECUTOR_MAP;
 
 public class ExecutorExecuteSubmitAdvice {
 
+    public static Logger LOGGER = LogManager.getLogger(ExecutorExecuteSubmitAdvice.class);
     public static final ThreadLocal<Executor> currentExecutor = new ThreadLocal<>();
     public static Optional<String> frame;
 
-    @Advice.OnMethodEnter
+    @Advice.OnMethodEnter(inline = false)
     public static void onEnter(@Advice.Origin String method, @Advice.This Executor executor) {
 
- // wait sleep, notify itd
-        // lock unlock signal signalall
-
-        // Main 78 Thread1 (Recznie, Executora) lock
-        // 
-
-        System.out.println("Entering");
         currentExecutor.set(executor);
 
         frame = Optional.empty();
@@ -37,28 +27,29 @@ public class ExecutorExecuteSubmitAdvice {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
         for (StackTraceElement element : stackTrace) {
-            if (!element.getClassName().contains("java.util.concurrent") && !element.getClassName().contains("java.lang.Thread")) {
+            if (!element.getClassName().contains("java.util.concurrent") &&
+                    !element.getClassName().contains("java.lang.Thread") &&
+                    !element.getClassName().contains("org.threadmonitoring.advices")) {
                 foundFrame.set(element.getClassName() + "." + element.getMethodName() + " (" + element.getFileName() + ":" + element.getLineNumber() + ")");
                 break;
             }
         }
 
-
         frame = Optional.ofNullable(foundFrame.get());
 
         if (frame.isPresent()) {
             String f = frame.get();
-            System.out.println("Place: " + f);
             if (method.contains("submit")) {
+                LOGGER.info("Task submitted by thread <{}> at {}", Thread.currentThread().getName(), f);
                 EXECUTOR_MAP.get(executor).addSubmitPlace(f);
-                //
             } else {
+                LOGGER.info("Task executed by thread <{}> at {}", Thread.currentThread().getName(), f);
                 EXECUTOR_MAP.get(executor).addExecutePlace(f);
             }
         }
     }
 
-    @Advice.OnMethodExit(onThrowable = Throwable.class)
+    @Advice.OnMethodExit(inline = false, onThrowable = Throwable.class)
     public static void onExit() {
         currentExecutor.remove();
     }

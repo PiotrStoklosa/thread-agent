@@ -18,12 +18,12 @@ public class BootstrapAgent {
             try {
                 return (CallSite) bootstrap.invoke(null, adviceMethodName, adviceMethodType, adviceClassName, args);
             } catch (Throwable e) {
-                e.printStackTrace();
+                System.err.println("Error occurred during invoking bootstrap method: " + e);
                 throw new RuntimeException(e);
 
             }
         } else{
-            System.out.println("Bootstrap method not initialized");
+            System.err.println("Bootstrap method not initialized");
             throw new RuntimeException("Bootstrap method not initialized");
         }
     }
