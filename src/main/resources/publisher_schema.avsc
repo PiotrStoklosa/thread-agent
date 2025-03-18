@@ -1,0 +1,53 @@
+{
+  "type": "record",
+  "name": "ExecutorMapRecord",
+  "namespace": "org.threadmonitoring.model",
+  "fields": [
+    {
+      "name": "executors",
+      "type": {
+        "type": "map",
+        "values": {
+          "type": "record",
+          "name": "ExecutorModel",
+          "fields": [
+            {
+              "name": "constructorStackTrace",
+              "type": {
+                "type": "array",
+                "items": {
+                  "type": "record",
+                  "name": "StackTraceElement",
+                  "fields": [
+                    {"name": "declaringClass", "type": "string"},
+                    {"name": "methodName", "type": "string"},
+                    {"name": "fileName", "type": ["null", "string"], "default": null},
+                    {"name": "lineNumber", "type": "int"}
+                  ]
+                }
+              }
+            },
+            {
+              "name": "submitPlaces",
+              "type": {
+                "type": "map",
+                "values": "int"
+              }
+            },
+            {
+              "name": "executePlaces",
+              "type": {
+                "type": "map",
+                "values": "int"
+              }
+            },
+            {
+              "name": "active",
+              "type": "boolean"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
