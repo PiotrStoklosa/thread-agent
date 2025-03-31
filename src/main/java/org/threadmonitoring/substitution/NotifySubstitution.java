@@ -1,4 +1,4 @@
-package org.threadmonitoring;
+package org.threadmonitoring.substitution;
 
 public class NotifySubstitution {
     public static void notify2(Object o) {

@@ -1,4 +1,4 @@
-package org.threadmonitoring;
+package org.threadmonitoring.substitution;
 
 
 public class SleepSubstitution {
