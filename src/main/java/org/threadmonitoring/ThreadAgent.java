@@ -3,9 +3,14 @@ package org.threadmonitoring;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.threadmonitoring.advices.*;
+import org.threadmonitoring.advices.ExecutorShutdownAdvice;
+import org.threadmonitoring.advices.LockAdvice;
+import org.threadmonitoring.advices.ThreadConstructorAdvice;
+import org.threadmonitoring.advices.ThreadStartAdvice;
+import org.threadmonitoring.advices.UnlockAdvice;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.ExecutorModel;
+import org.threadmonitoring.model.MethodSubstitutionRule;
 import org.threadmonitoring.util.AdviceHandler;
 import org.threadmonitoring.util.ClassLoadingHandler;
 
@@ -48,10 +53,15 @@ public class ThreadAgent {
         printAndLog("Initialized advices");
 
         Method bootstrap = ClassLoadingHandler.handleClassLoading();
-        List<AdviceRule> rules = AdviceHandler.createAdvices();
-        AgentBuilder agent = AdviceHandler.buildAgentWithAdvices(rules, bootstrap);
+        List<AdviceRule> adviceRules = AdviceHandler.createAdvices();
+        List<MethodSubstitutionRule> methodSubstitutionRules = AdviceHandler.createSubstitutions();
+
+        AgentBuilder agent = AdviceHandler.buildAgentWithAdvicesAndSubstitutions(adviceRules,
+                methodSubstitutionRules, bootstrap);
+
+
         agent.installOn(inst);
-        printAndLog("Advices created and installed");
+        printAndLog("Advices and method substitutions created and installed");
 
         try {
             printAndLog("Attempting to retransform classes");
@@ -61,6 +71,7 @@ public class ThreadAgent {
                 }
             }
             inst.retransformClasses(Thread.class);
+            inst.retransformClasses(Object.class);
             printAndLog("Retransformation completed successfully");
         } catch (UnmodifiableClassException e) {
             printAndLogError("Error occurred during retransforming classes" + e.getMessage());
