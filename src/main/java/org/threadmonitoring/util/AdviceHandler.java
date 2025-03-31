@@ -5,8 +5,6 @@ import net.bytebuddy.asm.Advice;
 import net.bytebuddy.asm.MemberSubstitution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.threadmonitoring.NotifySubstitution;
-import org.threadmonitoring.SleepSubstitution;
 import org.threadmonitoring.ThreadAgent;
 import org.threadmonitoring.advices.ExecutorConstructorAdvice;
 import org.threadmonitoring.advices.ExecutorExecuteSubmitAdvice;
@@ -18,6 +16,8 @@ import org.threadmonitoring.advices.UnlockAdvice;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.MethodSubstitutionRule;
 import org.threadmonitoring.model.MethodTemplate;
+import org.threadmonitoring.substitution.NotifySubstitution;
+import org.threadmonitoring.substitution.SleepSubstitution;
 
 import java.lang.reflect.Method;
 import java.util.List;

@@ -7,7 +7,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.threadmonitoring.LoggingNotifier.queue;
+import static org.threadmonitoring.substitution.LoggingNotifier.queue;
+
 
 public class ThreadAgentLogger {
 
