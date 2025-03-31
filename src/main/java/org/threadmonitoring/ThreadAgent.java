@@ -8,6 +8,7 @@ import org.threadmonitoring.advices.LockAdvice;
 import org.threadmonitoring.advices.ThreadConstructorAdvice;
 import org.threadmonitoring.advices.ThreadStartAdvice;
 import org.threadmonitoring.advices.UnlockAdvice;
+import org.threadmonitoring.logging.ThreadAgentLogger;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.ExecutorModel;
 import org.threadmonitoring.model.MethodSubstitutionRule;
@@ -47,6 +48,7 @@ public class ThreadAgent {
         printAndLog("Initializing ThreadAgent before the target application to enable thread and executor monitoring");
 
         System.setProperty("log4j.configurationFile", "C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\thread-agent\\src\\main\\resources\\log4j2.xml");
+        ThreadAgentLogger.startLogReader();
         printAndLog("Initialized log4j successfully");
 
         initializeClasses();
