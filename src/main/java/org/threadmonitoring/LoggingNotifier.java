@@ -7,8 +7,14 @@ public class LoggingNotifier {
 
     public static BlockingQueue<String> queue = new LinkedBlockingQueue<>();
 
-    public static void log(String message) {
-        queue.offer(message);
+    public static void log(String message, Class<?> logger, String level) {
+        queue.offer(
+                new StringBuilder(message)
+                        .append("###")
+                        .append(logger.toString())
+                        .append("###")
+                        .append(level)
+                        .toString());
     }
 
 }
