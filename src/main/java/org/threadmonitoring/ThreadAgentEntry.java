@@ -1,5 +1,6 @@
 package org.threadmonitoring;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
@@ -11,10 +12,15 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 public class ThreadAgentEntry {
     public static void premain(String agentArgs, Instrumentation inst) throws URISyntaxException, IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        File jarFile = new File("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\thread-agent-api\\build\\libs\\Agent-API-1.0-SNAPSHOT.jar");
+        JarFile jar = new JarFile(jarFile);
+        inst.appendToBootstrapClassLoaderSearch(jar);
 
         URI uri = AgentClassLoader.class.getProtectionDomain().getCodeSource().getLocation().toURI();
         Path lib = Paths.get(uri).getParent().resolve("./lib");
@@ -30,9 +36,8 @@ public class ThreadAgentEntry {
 
             AgentClassLoader agentClassLoader = new AgentClassLoader(urls, Thread.currentThread().getContextClassLoader());
             Thread.currentThread().setContextClassLoader(agentClassLoader);
-            Class<?> agentMain = agentClassLoader.loadClass("org.threadmonitoring.Main");
+            Class<?> agentMain = agentClassLoader.loadClass("org.threadmonitoring.ThreadAgent");
             Method run = agentMain.getDeclaredMethod("run", Instrumentation.class);
-
 
             run.invoke(null, inst);
         }

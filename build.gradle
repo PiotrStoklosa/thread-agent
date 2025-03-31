@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+    implementation(files("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\thread-agent-api\\build\\libs\\Agent-API-1.0-SNAPSHOT.jar"))
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
@@ -23,6 +24,8 @@ jar {
         attributes 'Agentmain-Class': 'org.threadmonitoring.ThreadAgentEntry'
         attributes 'Can-Retransform-Classes': 'true'
         attributes 'Class-Path': './lib'
+        attributes "Can-Redefine-Classes": "true"
+        attributes "Can-Set-Native-Method-Prefix": "true"
     }
     destinationDirectory = file("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production")
     archiveFileName = 'thread-agent.jar'
