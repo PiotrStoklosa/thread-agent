@@ -1,9 +1,7 @@
 package org.threadmonitoring.model;
 
-import org.apache.logging.log4j.LogManager;
-import org.threadmonitoring.advices.ThreadConstructorAdvice;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class ExecutorModel {
@@ -15,7 +13,7 @@ public class ExecutorModel {
     private final Map<String, Integer> executePlaces = new HashMap<>();
     private boolean active = true;
 
-    public static void initialize(){
+    public static void initialize() {
 
         EXECUTOR_MAP = new HashMap<>();
 
@@ -26,11 +24,13 @@ public class ExecutorModel {
     }
 
     public void addSubmitPlace(String place) {
-        submitPlaces.merge(place, 1, Integer::sum);
+        int count = submitPlaces.getOrDefault(place, 0);
+        submitPlaces.put(place, count + 1);
     }
 
     public void addExecutePlace(String place) {
-        executePlaces.merge(place, 1, Integer::sum);
+        int count = executePlaces.getOrDefault(place, 0);
+        executePlaces.put(place, count + 1);
     }
 
     public StackTraceElement[] getConstructorStackTrace() {
@@ -50,7 +50,7 @@ public class ExecutorModel {
         return active;
     }
 
-    public void deactivate(){
+    public void deactivate() {
         active = false;
     }
 }
