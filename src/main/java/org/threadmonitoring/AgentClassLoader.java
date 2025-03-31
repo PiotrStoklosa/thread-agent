@@ -11,8 +11,13 @@ public class AgentClassLoader extends URLClassLoader {
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-
         synchronized (getClassLoadingLock(name)) {
+            /* These classes should not be loaded with the Application class loader,
+               as they need to be accessible in both the monitored application and the Thread Agent. */
+            if (name.startsWith("org.threadmonitoring.substitution")) {
+                return getParent().loadClass(name);
+            }
+
             Class<?> c = findLoadedClass(name);
             if (c == null) {
                 try {
