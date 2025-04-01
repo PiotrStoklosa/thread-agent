@@ -18,6 +18,7 @@ import org.threadmonitoring.model.MethodSubstitutionRule;
 import org.threadmonitoring.model.MethodTemplate;
 import org.threadmonitoring.substitution.NotifySubstitution;
 import org.threadmonitoring.substitution.SleepSubstitution;
+import org.threadmonitoring.substitution.WaitSubstitution;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -172,6 +173,17 @@ public class AdviceHandler {
                         .setNewMethod(new MethodTemplate.Builder()
                                 .setClazz(NotifySubstitution.class)
                                 .setMethodName("notify2")
+                                .setArguments(List.of(Object.class))
+                                .build())
+                        .build()
+                , new MethodSubstitutionRule.Builder()
+                        .setTypeMatcher(nameContains("org.example").or(named("java.lang.Object")))
+                        .setSubstituteMethod(named("wait")
+                                .and(returns(void.class))
+                                .and(takesNoArguments()))
+                        .setNewMethod(new MethodTemplate.Builder()
+                                .setClazz(WaitSubstitution.class)
+                                .setMethodName("wait2")
                                 .setArguments(List.of(Object.class))
                                 .build())
                         .build());
