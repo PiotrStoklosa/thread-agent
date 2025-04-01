@@ -13,11 +13,10 @@ repositories {
 }
 
 dependencies {
-    implementation('net.bytebuddy:byte-buddy:1.15.3')
-    implementation('org.apache.kafka:kafka-clients:3.7.1')
+    implementation 'net.bytebuddy:byte-buddy:1.15.3'
     implementation 'org.apache.logging.log4j:log4j-core:2.24.3'
     implementation 'org.apache.logging.log4j:log4j-api:2.24.3'
-    implementation(files("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\thread-agent-api\\build\\libs\\Agent-API-1.0-SNAPSHOT.jar"))
+    implementation(files("${projectDir}/../threadmonitoring/api/agent-api-1.0.jar"))
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
@@ -26,24 +25,32 @@ test {
     useJUnitPlatform()
 }
 
+task copyLog4jConfig(type: Copy) {
+    from 'src/main/resources/log4j2.xml'
+    into "${projectDir}/../threadmonitoring/configuration"
+}
+
+
 jar {
     manifest {
         attributes 'Can-Retransform-Classes': 'true'
         attributes 'Boot-Class-Path': 'thread-agent-1-0.jar'
         attributes 'Class-Path': './libs'
     }
-
-    destinationDirectory = file("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib")
+    destinationDirectory = file("${projectDir}/../threadmonitoring/lib")
+    dependsOn copyLog4jConfig
 }
+
 task cleanLib(type: Delete) {
-    delete fileTree('C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib')
+    delete("${projectDir}/../threadmonitoring/lib")
+    delete("${projectDir}/../threadmonitoring/configuration")
 }
 
 clean.dependsOn cleanLib
 
 task copyDependencies(type: Copy) {
     from configurations.runtimeClasspath
-    into "C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\lib"
+    into "${projectDir}/../threadmonitoring/lib"
 }
 
 jar.finalizedBy(copyDependencies)

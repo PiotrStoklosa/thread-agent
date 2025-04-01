@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
+    <Properties>
+        <Property name="logFilePath">${sys:log4j2.logdir:-../logs}</Property>
+    </Properties>
+
     <Appenders>
         <RollingFile name="RollingFileAppender"
-                     fileName="logs/thread-agent1.log"
-                     filePattern="logs/thread-agent%d.log.gz">
+                     fileName="${logFilePath}/thread-agent1.log"
+                     filePattern="${logFilePath}/thread-agent%d.log.gz">
             <PatternLayout>
                 <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %c{1} - %msg%n</Pattern>
             </PatternLayout>

@@ -47,7 +47,6 @@ public class ThreadAgent {
 
         printAndLog("Initializing ThreadAgent before the target application to enable thread and executor monitoring");
 
-        System.setProperty("log4j.configurationFile", "C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\thread-agent\\src\\main\\resources\\log4j2.xml");
         ThreadAgentLogger.startLogReader();
         printAndLog("Initialized log4j successfully");
 
