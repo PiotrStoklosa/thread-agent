@@ -47,10 +47,11 @@ public class ThreadAgent {
 
         printAndLog("Initializing ThreadAgent before the target application to enable thread and executor monitoring");
 
-        ThreadAgentLogger.startLogReader();
-        printAndLog("Initialized log4j successfully");
+        printAndLog("The logging has been configured to the " + System.getProperty("log4j2.logdir"));
 
+        ThreadAgentLogger.startLogReader();
         initializeClasses();
+
         printAndLog("Initialized advices");
 
         Method bootstrap = ClassLoadingHandler.handleClassLoading();
