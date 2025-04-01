@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation(files("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\thread-agent-api\\build\\libs\\Agent-API-1.0-SNAPSHOT.jar"))
+    implementation files("${projectDir}/../threadmonitoring/api/agent-api-1.0.jar")
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
@@ -27,12 +27,12 @@ jar {
         attributes "Can-Redefine-Classes": "true"
         attributes "Can-Set-Native-Method-Prefix": "true"
     }
-    destinationDirectory = file("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production")
+    destinationDirectory =  file("${projectDir}/../threadmonitoring")
     archiveFileName = 'thread-agent.jar'
 }
 
 task cleanProd(type: Delete) {
-    delete file('C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\production\\thread-agent.jar')
+    delete("${projectDir}/../threadmonitoring/thread-agent.jar")
 }
 
 clean.dependsOn cleanProd

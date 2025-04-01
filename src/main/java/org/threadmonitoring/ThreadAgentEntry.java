@@ -18,11 +18,28 @@ import java.util.stream.Stream;
 public class ThreadAgentEntry {
     public static void premain(String agentArgs, Instrumentation inst) throws URISyntaxException, IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-        File jarFile = new File("C:\\Users\\Piotr\\OneDrive\\Pulpit\\Studia\\Magisterka\\thread-agent-api\\build\\libs\\Agent-API-1.0-SNAPSHOT.jar");
-        JarFile jar = new JarFile(jarFile);
-        inst.appendToBootstrapClassLoaderSearch(jar);
 
         URI uri = AgentClassLoader.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+
+        String jarDir;
+        try {
+            jarDir = new File(ThreadAgentEntry.class.getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()).getParent();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (System.getProperty("log4j2.logdir") == null) {
+            System.setProperty("log4j2.logdir"
+                    , jarDir + "/logs");
+        }
+
+        Path api = Paths.get(uri).getParent().resolve("./api/agent-api-1.0.jar");
+        JarFile jar = new JarFile(String.valueOf(api));
+        inst.appendToBootstrapClassLoaderSearch(jar);
+
         Path lib = Paths.get(uri).getParent().resolve("./lib");
 
         try (Stream<Path> pathStream = Files.list(lib)) {
