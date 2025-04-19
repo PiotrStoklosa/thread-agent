@@ -94,7 +94,7 @@ public class AdviceHandler {
                 .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
 /*                .with(AgentBuilder.Listener.StreamWriting.toSystemError())
                 .with(AgentBuilder.InstallationListener.StreamWriting.toSystemError())*/
-                .with(AgentBuilder.TypeStrategy.Default.REBASE)
+                .with(AgentBuilder.TypeStrategy.Default.DECORATE)
                 .with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED);
     }
 
