@@ -19,6 +19,7 @@ import org.threadmonitoring.configuration.Configuration;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.MethodSubstitutionRule;
 import org.threadmonitoring.model.MethodTemplate;
+import org.threadmonitoring.substitution.NotifyAllSubstitution;
 import org.threadmonitoring.substitution.NotifySubstitution;
 import org.threadmonitoring.substitution.SleepSubstitution;
 import org.threadmonitoring.substitution.WaitSubstitution;
@@ -184,6 +185,17 @@ public class AdviceHandler {
                         .setNewMethod(new MethodTemplate.Builder()
                                 .setClazz(NotifySubstitution.class)
                                 .setMethodName("notify2")
+                                .setArguments(List.of(Object.class))
+                                .build())
+                        .build()
+                , new MethodSubstitutionRule.Builder()
+                        .setTypeMatcher(matcher)
+                        .setSubstituteMethod(named("notifyAll")
+                                .and(returns(void.class))
+                                .and(takesNoArguments()))
+                        .setNewMethod(new MethodTemplate.Builder()
+                                .setClazz(NotifyAllSubstitution.class)
+                                .setMethodName("notifyAll2")
                                 .setArguments(List.of(Object.class))
                                 .build())
                         .build()
