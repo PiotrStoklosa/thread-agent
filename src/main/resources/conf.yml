@@ -1,0 +1,7 @@
+# Insert all packages or classes you want to monitor.
+# i.e. if you want to view lock and unlock made on instance of net.random.package.test, you need to include it here
+# for whole application monitoring, please put the beginning of the package from all your classes. i.e. net.random
+monitored:
+  - java.lang.Thread
+  - java.lang.Object
+  - org.example
