@@ -8,7 +8,7 @@ public class ExecutorModel {
 
     public static Map<Executor, ExecutorModel> EXECUTOR_MAP;
 
-    private final StackTraceElement[] constructorStackTrace;
+    private final String constructorPlace;
     private final Map<String, Integer> submitPlaces = new HashMap<>();
     private final Map<String, Integer> executePlaces = new HashMap<>();
     private boolean active = true;
@@ -19,8 +19,8 @@ public class ExecutorModel {
 
     }
 
-    public ExecutorModel(StackTraceElement[] constructorStackTrace) {
-        this.constructorStackTrace = constructorStackTrace;
+    public ExecutorModel(String constructorPlace) {
+        this.constructorPlace = constructorPlace;
     }
 
     public void addSubmitPlace(String place) {
@@ -33,8 +33,8 @@ public class ExecutorModel {
         executePlaces.put(place, count + 1);
     }
 
-    public StackTraceElement[] getConstructorStackTrace() {
-        return constructorStackTrace;
+    public String getConstructorPlace() {
+        return constructorPlace;
     }
 
 
