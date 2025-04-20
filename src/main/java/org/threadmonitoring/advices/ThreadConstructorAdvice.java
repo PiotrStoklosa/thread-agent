@@ -5,7 +5,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Executable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,11 +32,7 @@ public final class ThreadConstructorAdvice {
             @Advice.Origin Executable methodOrConstructor,
             @Advice.AllArguments Object[] args
     ) {
-        if (args != null) {
-            if (args.length == 6) {
-                LOGGER.trace("Creating thread named {} ...", args[2]);
-            }
-        }
+        LOGGER.info("Creating thread named {} ...", args[2]);
     }
 
     @Advice.OnMethodExit(inline = false)
@@ -41,20 +41,17 @@ public final class ThreadConstructorAdvice {
             @Advice.AllArguments Object[] args,
             @Advice.This Thread thread
     ) {
-        if (args != null) {
-            if (args.length == 6) {
-                numberOfThreads.addAndGet(1);
-                threads.add(thread);
-                Executor executor = ExecutorExecuteSubmitAdvice.currentExecutor.get();
-                if (executor != null) {
-                    synchronized (threadToExecutorMap) {
-                        threadToExecutorMap.put(thread.getId(), executor);
-                    }
-                    LOGGER.info("Thread {} created by Executor: {}", thread.getName(), executor);
-                } else {
-                    LOGGER.info("Thread {} created independently", thread.getName());
-                }
+
+        numberOfThreads.addAndGet(1);
+        threads.add(thread);
+        Executor executor = ExecutorExecuteSubmitAdvice.currentExecutor.get();
+        if (executor != null) {
+            synchronized (threadToExecutorMap) {
+                threadToExecutorMap.put(thread.getId(), executor);
             }
+            LOGGER.info("Thread {} created by Executor: {}", thread.getName(), executor);
+        } else {
+            LOGGER.info("Thread {} created independently", thread.getName());
         }
     }
 }

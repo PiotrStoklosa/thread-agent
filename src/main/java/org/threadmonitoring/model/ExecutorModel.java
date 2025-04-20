@@ -1,7 +1,7 @@
 package org.threadmonitoring.model;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 public class ExecutorModel {
@@ -9,13 +9,13 @@ public class ExecutorModel {
     public static Map<Executor, ExecutorModel> EXECUTOR_MAP;
 
     private final String constructorPlace;
-    private final Map<String, Integer> submitPlaces = new HashMap<>();
-    private final Map<String, Integer> executePlaces = new HashMap<>();
+    private final Map<String, Integer> submitPlaces = new ConcurrentHashMap<>();
+    private final Map<String, Integer> executePlaces = new ConcurrentHashMap<>();
     private boolean active = true;
 
     public static void initialize() {
 
-        EXECUTOR_MAP = new HashMap<>();
+        EXECUTOR_MAP = new ConcurrentHashMap<>();
 
     }
 
