@@ -3,10 +3,10 @@ package org.threadmonitoring.advices;
 import net.bytebuddy.asm.Advice;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.threadmonitoring.configuration.Configuration;
 
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.threadmonitoring.model.ExecutorModel.EXECUTOR_MAP;
 
@@ -14,37 +14,25 @@ public class ExecutorExecuteSubmitAdvice {
 
     public static Logger LOGGER = LogManager.getLogger(ExecutorExecuteSubmitAdvice.class);
     public static final ThreadLocal<Executor> currentExecutor = new ThreadLocal<>();
-    public static Optional<String> frame;
 
     @Advice.OnMethodEnter(inline = false)
     public static void onEnter(@Advice.Origin String method, @Advice.This Executor executor) {
+        if (currentExecutor.get() == null) {
+            currentExecutor.set(executor);
 
-        currentExecutor.set(executor);
+            Optional<StackWalker.StackFrame> place = StackWalker.getInstance()
+                    .walk(frames -> frames.filter(f -> Configuration.monitoredPackages.stream().anyMatch(f.getClassName()::startsWith))
+                            .findFirst());
 
-        frame = Optional.empty();
-        AtomicReference<String> foundFrame = new AtomicReference<>(null);
-
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-
-        for (StackTraceElement element : stackTrace) {
-            if (!element.getClassName().contains("java.util.concurrent") &&
-                    !element.getClassName().contains("java.lang.Thread") &&
-                    !element.getClassName().contains("org.threadmonitoring.advices")) {
-                foundFrame.set(element.getClassName() + "." + element.getMethodName() + " (" + element.getFileName() + ":" + element.getLineNumber() + ")");
-                break;
-            }
-        }
-
-        frame = Optional.ofNullable(foundFrame.get());
-
-        if (frame.isPresent()) {
-            String f = frame.get();
-            if (method.contains("submit")) {
-                LOGGER.info("Task submitted by thread <{}> at {}", Thread.currentThread().getName(), f);
-                EXECUTOR_MAP.get(executor).addSubmitPlace(f);
-            } else {
-                LOGGER.info("Task executed by thread <{}> at {}", Thread.currentThread().getName(), f);
-                EXECUTOR_MAP.get(executor).addExecutePlace(f);
+            if (place.isPresent()) {
+                String p = String.valueOf(place.get());
+                if (method.contains("submit")) {
+                    LOGGER.info("Task submitted by thread <{}> at {} on {}", Thread.currentThread().getName(), p, executor);
+                    EXECUTOR_MAP.get(executor).addSubmitPlace(p);
+                } else {
+                    LOGGER.info("Task executed by thread <{}> at {} on {}", Thread.currentThread().getName(), p, executor);
+                    EXECUTOR_MAP.get(executor).addExecutePlace(p);
+                }
             }
         }
     }
