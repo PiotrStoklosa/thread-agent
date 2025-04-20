@@ -3,6 +3,8 @@ package org.threadmonitoring.util;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.asm.MemberSubstitution;
+import net.bytebuddy.description.type.TypeDescription;
+import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.threadmonitoring.ThreadAgent;
@@ -13,6 +15,7 @@ import org.threadmonitoring.advices.LockAdvice;
 import org.threadmonitoring.advices.ThreadConstructorAdvice;
 import org.threadmonitoring.advices.ThreadStartAdvice;
 import org.threadmonitoring.advices.UnlockAdvice;
+import org.threadmonitoring.configuration.Configuration;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.MethodSubstitutionRule;
 import org.threadmonitoring.model.MethodTemplate;
@@ -31,7 +34,7 @@ import static net.bytebuddy.matcher.ElementMatchers.is;
 import static net.bytebuddy.matcher.ElementMatchers.isConstructor;
 import static net.bytebuddy.matcher.ElementMatchers.isMethod;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
-import static net.bytebuddy.matcher.ElementMatchers.nameContains;
+import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 import static net.bytebuddy.matcher.ElementMatchers.returns;
@@ -155,8 +158,15 @@ public class AdviceHandler {
     }
 
     public static List<MethodSubstitutionRule> createSubstitutions() {
+
+        ElementMatcher.Junction<TypeDescription> matcher = none();
+        for (String pkg : Configuration.monitoredPackages) {
+            matcher = matcher.or(nameStartsWith(pkg));
+        }
+
+
         return List.of(new MethodSubstitutionRule.Builder()
-                        .setTypeMatcher(nameContains("org.example").or(named("java.lang.Object")))
+                        .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("sleep")
                                 .and(takesArguments(long.class))
                                 .and(returns(void.class)))
@@ -167,7 +177,7 @@ public class AdviceHandler {
                                 .build())
                         .build()
                 , new MethodSubstitutionRule.Builder()
-                        .setTypeMatcher(nameContains("org.example").or(named("java.lang.Object")))
+                        .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("notify")
                                 .and(returns(void.class))
                                 .and(takesNoArguments()))
@@ -178,7 +188,7 @@ public class AdviceHandler {
                                 .build())
                         .build()
                 , new MethodSubstitutionRule.Builder()
-                        .setTypeMatcher(nameContains("org.example").or(named("java.lang.Object")))
+                        .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("wait")
                                 .and(returns(void.class))
                                 .and(takesNoArguments()))
@@ -189,7 +199,7 @@ public class AdviceHandler {
                                 .build())
                         .build(),
                 new MethodSubstitutionRule.Builder()
-                        .setTypeMatcher(nameContains("org.example").or(named("java.lang.Object")))
+                        .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("yield")
                                 .and(returns(void.class))
                                 .and(takesNoArguments()))
