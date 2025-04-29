@@ -21,15 +21,7 @@ public class ThreadAgentEntry {
 
         URI uri = AgentClassLoader.class.getProtectionDomain().getCodeSource().getLocation().toURI();
 
-        String jarDir;
-        try {
-            jarDir = new File(ThreadAgentEntry.class.getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .toURI()).getParent();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+        String jarDir = new File(uri).getParent();
 
         if (System.getProperty("log4j2.logdir") == null) {
             System.setProperty("log4j2.logdir"
