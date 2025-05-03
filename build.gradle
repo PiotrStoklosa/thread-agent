@@ -1,0 +1,25 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'org.threadmonitoring'
+version = '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+repositories {
+    mavenCentral()
+}
+jar {
+    destinationDirectory.set(file("${projectDir}/../threadmonitoring/lib"))
+}
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
