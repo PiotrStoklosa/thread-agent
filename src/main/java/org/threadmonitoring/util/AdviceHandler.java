@@ -24,6 +24,8 @@ import org.threadmonitoring.substitution.NotifySubstitution;
 import org.threadmonitoring.substitution.SleepSubstitution;
 import org.threadmonitoring.substitution.WaitSubstitution;
 import org.threadmonitoring.substitution.YieldSubstitution;
+import org.threadmonitoring.substitution.call.GeneralSubstitution;
+import org.threadmonitoring.substitution.call.SynchronizedCall;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -209,8 +211,41 @@ public class AdviceHandler {
                                 .setMethodName("wait2")
                                 .setArguments(List.of(Object.class))
                                 .build())
-                        .build(),
-                new MethodSubstitutionRule.Builder()
+                        .build()
+                , new MethodSubstitutionRule.Builder()
+                        .setTypeMatcher(matcher)
+                        .setSubstituteMethod(named("alertSynchronizedEntry")
+                                .and(returns(void.class))
+                                .and(takesNoArguments()))
+                        .setNewMethod(new MethodTemplate.Builder()
+                                .setClazz(SynchronizedCall.class)
+                                .setMethodName("alertSynchronizedEntry2")
+                                .setArguments(List.of())
+                                .build())
+                        .build()
+                , new MethodSubstitutionRule.Builder()
+                        .setTypeMatcher(matcher)
+                        .setSubstituteMethod(named("alertSynchronizedExit")
+                                .and(returns(void.class))
+                                .and(takesNoArguments()))
+                        .setNewMethod(new MethodTemplate.Builder()
+                                .setClazz(SynchronizedCall.class)
+                                .setMethodName("alertSynchronizedExit2")
+                                .setArguments(List.of())
+                                .build())
+                        .build()
+                , new MethodSubstitutionRule.Builder()
+                        .setTypeMatcher(matcher)
+                        .setSubstituteMethod(named("alertMultithreadingCall")
+                                .and(returns(void.class))
+                                .and(takesArguments(String.class)))
+                        .setNewMethod(new MethodTemplate.Builder()
+                                .setClazz(GeneralSubstitution.class)
+                                .setMethodName("substitute2")
+                                .setArguments(List.of(String.class))
+                                .build())
+                        .build()
+                , new MethodSubstitutionRule.Builder()
                         .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("yield")
                                 .and(returns(void.class))
