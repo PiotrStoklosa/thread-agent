@@ -16,6 +16,7 @@ import org.threadmonitoring.advices.ThreadConstructorAdvice;
 import org.threadmonitoring.advices.ThreadStartAdvice;
 import org.threadmonitoring.advices.UnlockAdvice;
 import org.threadmonitoring.configuration.Configuration;
+import org.threadmonitoring.jvm.DestroyJVMMonitor;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.MethodSubstitutionRule;
 import org.threadmonitoring.model.MethodTemplate;
@@ -50,6 +51,9 @@ public class AdviceHandler {
 
 
     public static AgentBuilder buildAgentWithAdvicesAndSubstitutions(List<AdviceRule> adviceRules, List<MethodSubstitutionRule> methodSubstitutionRules, Method bootstrapMethod) {
+
+        DestroyJVMMonitor.displayAllThreads();
+
         AgentBuilder agentBuilder = buildAgent();
 
         for (AdviceRule adviceRule : adviceRules) {
