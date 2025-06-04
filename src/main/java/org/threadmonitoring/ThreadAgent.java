@@ -13,8 +13,8 @@ import org.threadmonitoring.logging.ThreadAgentLogger;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.ExecutorModel;
 import org.threadmonitoring.model.MethodSubstitutionRule;
-import org.threadmonitoring.util.AdviceHandler;
-import org.threadmonitoring.util.ClassLoadingHandler;
+import org.threadmonitoring.advices.AdviceHandler;
+import org.threadmonitoring.bootstrap.ClassLoadingHandler;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;

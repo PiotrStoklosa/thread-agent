@@ -1,4 +1,4 @@
-package org.threadmonitoring.util;
+package org.threadmonitoring.advices;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
@@ -8,13 +8,6 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.threadmonitoring.ThreadAgent;
-import org.threadmonitoring.advices.ExecutorConstructorAdvice;
-import org.threadmonitoring.advices.ExecutorExecuteSubmitAdvice;
-import org.threadmonitoring.advices.ExecutorShutdownAdvice;
-import org.threadmonitoring.advices.LockAdvice;
-import org.threadmonitoring.advices.ThreadConstructorAdvice;
-import org.threadmonitoring.advices.ThreadStartAdvice;
-import org.threadmonitoring.advices.UnlockAdvice;
 import org.threadmonitoring.configuration.Configuration;
 import org.threadmonitoring.jvm.DestroyJVMMonitor;
 import org.threadmonitoring.model.AdviceRule;

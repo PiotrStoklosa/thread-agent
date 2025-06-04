@@ -1,4 +1,4 @@
-package org.threadmonitoring.util;
+package org.threadmonitoring.bootstrap;
 
 import net.bytebuddy.dynamic.loading.ClassInjector;
 import org.threadmonitoring.ThreadAgent;

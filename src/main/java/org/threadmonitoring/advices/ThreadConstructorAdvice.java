@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Executable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,14 +26,6 @@ public final class ThreadConstructorAdvice {
         numberOfThreads = new AtomicInteger(0);
         threadToExecutorMap = new WeakHashMap<>();
         threads = Collections.synchronizedList(new ArrayList<>());
-    }
-
-    @Advice.OnMethodEnter(inline = false)
-    public static void interceptEntry(
-            @Advice.Origin Executable methodOrConstructor,
-            @Advice.AllArguments Object[] args
-    ) {
-        LOGGER.info("Creating thread named {} ...", args[2]);
     }
 
     @Advice.OnMethodExit(inline = false)
