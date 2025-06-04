@@ -5,7 +5,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
-public class BootstrapAgent {
+public class Bootstrapper {
 
     public static volatile MethodHandle bootstrap;
 
@@ -29,6 +29,6 @@ public class BootstrapAgent {
     }
 
     public static void setBootstrap(MethodHandle bootstrap) {
-        BootstrapAgent.bootstrap = bootstrap;
+        Bootstrapper.bootstrap = bootstrap;
     }
 }
