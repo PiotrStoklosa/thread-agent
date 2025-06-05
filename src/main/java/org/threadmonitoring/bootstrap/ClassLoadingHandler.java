@@ -13,7 +13,7 @@ import java.util.Collections;
 
 public class ClassLoadingHandler {
 
-    private static final String BOOTSTRAP_AGENT_CLASS = "org.threadmonitoring.bootstrap.BootstrapAgent";
+    private static final String BOOTSTRAP_AGENT_CLASS = "org.threadmonitoring.bootstrap.Bootstrapper";
 
     public static Method handleClassLoading() {
         byte[] classBytes;
@@ -74,8 +74,8 @@ public class ClassLoadingHandler {
             if (in != null) {
                 classBytes = inputStreamToBytes(in);
             } else {
-                System.out.println("Classloader resource not found org.threadmonitoring.bootstrap.BootstrapAgent");
-                throw new IOException("Classloader resource not found org.threadmonitoring.bootstrap.BootstrapAgent");
+                System.out.println("Classloader resource not found org.threadmonitoring.bootstrap.Bootstrapper");
+                throw new IOException("Classloader resource not found org.threadmonitoring.bootstrap.Bootstrapper");
             }
             return classBytes;
         }
