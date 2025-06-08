@@ -19,9 +19,9 @@ public class ThreadAgentLogger {
             try {
                 while (true) {
                     String[] log = queue.take().split("###");
-                    String message = log[0];
-                    String loggerName = log[1];
-                    String logLevel = log[2];
+                    String message = log[1];
+                    String loggerName = log[2];
+                    String logLevel = log[3];
                     substitutedClassLoggers.computeIfAbsent(loggerName, k -> LogManager.getLogger(loggerName))
                             .log(Level.toLevel(logLevel, Level.INFO), message);
 
