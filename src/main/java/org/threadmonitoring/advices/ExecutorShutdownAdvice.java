@@ -20,10 +20,11 @@ public class ExecutorShutdownAdvice {
     public static void interceptEntry(
             @Advice.This Executor executor
     ) {
-
-        if (EXECUTOR_MAP.containsKey(executor)) {
-            EXECUTOR_MAP.get(executor).deactivate();
-            LOGGER.info("Executor {} shutdown", executor);
+        synchronized (ExecutorShutdownAdvice.class) {
+            if (EXECUTOR_MAP.containsKey(executor) && EXECUTOR_MAP.get(executor).isActive()) {
+                EXECUTOR_MAP.get(executor).deactivate();
+                LOGGER.info("Executor {} shutdown", executor);
+            }
         }
     }
 
