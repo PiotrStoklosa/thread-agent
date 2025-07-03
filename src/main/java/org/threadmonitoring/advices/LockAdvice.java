@@ -40,7 +40,7 @@ public class LockAdvice {
                 );
 
                 if (allFromMonitored && !callers.isEmpty()) {
-                    LOGGER.info("Lock {} acquired by thread {} at {}",
+                    LOGGER.info("Lock {} acquired (or waiting to be acquired) by thread {} at {}",
                             lock.toString(), Thread.currentThread().getName(), callers.get(0));
                 }
                 return;
