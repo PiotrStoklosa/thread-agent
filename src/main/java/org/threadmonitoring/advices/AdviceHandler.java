@@ -24,11 +24,13 @@ import org.threadmonitoring.substitution.call.SynchronizedCall;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.is;
 import static net.bytebuddy.matcher.ElementMatchers.isConstructor;
+import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.isMethod;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
@@ -123,7 +125,7 @@ public class AdviceHandler {
                         .build()
                 ,
                 new AdviceRule.Builder()
-                        .setTypeMatcher(isSubTypeOf(Executor.class))
+                        .setTypeMatcher(isSubTypeOf(ExecutorService.class))
                         .setMethodMatcher(isMethod().and(named("shutdown")))
                         .setClassName(ExecutorShutdownAdvice.class.getName())
                         .build()
@@ -169,7 +171,8 @@ public class AdviceHandler {
                         .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("sleep")
                                 .and(takesArguments(long.class))
-                                .and(returns(void.class)))
+                                .and(returns(void.class))
+                                .and(isDeclaredBy(Thread.class)))
                         .setNewMethod(new MethodTemplate.Builder()
                                 .setClazz(SleepSubstitution.class)
                                 .setMethodName("sleep2")
@@ -180,7 +183,8 @@ public class AdviceHandler {
                         .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("notify")
                                 .and(returns(void.class))
-                                .and(takesNoArguments()))
+                                .and(takesNoArguments())
+                                .and(isDeclaredBy(Object.class)))
                         .setNewMethod(new MethodTemplate.Builder()
                                 .setClazz(NotifySubstitution.class)
                                 .setMethodName("notify2")
@@ -191,7 +195,8 @@ public class AdviceHandler {
                         .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("notifyAll")
                                 .and(returns(void.class))
-                                .and(takesNoArguments()))
+                                .and(takesNoArguments())
+                                .and(isDeclaredBy(Object.class)))
                         .setNewMethod(new MethodTemplate.Builder()
                                 .setClazz(NotifyAllSubstitution.class)
                                 .setMethodName("notifyAll2")
@@ -202,7 +207,8 @@ public class AdviceHandler {
                         .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("wait")
                                 .and(returns(void.class))
-                                .and(takesNoArguments()))
+                                .and(takesNoArguments())
+                                .and(isDeclaredBy(Object.class)))
                         .setNewMethod(new MethodTemplate.Builder()
                                 .setClazz(WaitSubstitution.class)
                                 .setMethodName("wait2")
@@ -257,7 +263,8 @@ public class AdviceHandler {
                         .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("yield")
                                 .and(returns(void.class))
-                                .and(takesNoArguments()))
+                                .and(takesNoArguments())
+                                .and(isDeclaredBy(Thread.class)))
                         .setNewMethod(new MethodTemplate.Builder()
                                 .setClazz(YieldSubstitution.class)
                                 .setMethodName("yield2")

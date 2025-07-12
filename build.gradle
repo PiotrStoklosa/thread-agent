@@ -42,6 +42,7 @@ jar {
         attributes 'Class-Path': './libs'
     }
     destinationDirectory = file("${projectDir}/../threadmonitoring/lib")
+    archiveFileName = "thread-agent-lib-${version}.jar"
     dependsOn copyConfig
 }
 
