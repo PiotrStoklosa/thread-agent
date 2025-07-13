@@ -1,4 +1,4 @@
-package org.threadmonitoring.advices;
+package org.threadmonitoring.advices.handler;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
@@ -8,11 +8,20 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.threadmonitoring.ThreadAgent;
-import org.threadmonitoring.configuration.Configuration;
+import org.threadmonitoring.advices.ExecutorConstructorAdvice;
+import org.threadmonitoring.advices.ExecutorExecuteSubmitAdvice;
+import org.threadmonitoring.advices.ExecutorShutdownAdvice;
+import org.threadmonitoring.advices.LockAdvice;
+import org.threadmonitoring.advices.SynchronizedMethodAdvice;
+import org.threadmonitoring.advices.ThreadConstructorAdvice;
+import org.threadmonitoring.advices.ThreadStartAdvice;
+import org.threadmonitoring.advices.UnlockAdvice;
+import org.threadmonitoring.advices.wrapper.MonitorEnterExitSynchronizedBlockWrapper;
 import org.threadmonitoring.jvm.DestroyJVMMonitor;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.MethodSubstitutionRule;
 import org.threadmonitoring.model.MethodTemplate;
+import org.threadmonitoring.model.VisitorRule;
 import org.threadmonitoring.substitution.NotifyAllSubstitution;
 import org.threadmonitoring.substitution.NotifySubstitution;
 import org.threadmonitoring.substitution.SleepSubstitution;
@@ -33,9 +42,11 @@ import static net.bytebuddy.matcher.ElementMatchers.isConstructor;
 import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.isMethod;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
+import static net.bytebuddy.matcher.ElementMatchers.isSynchronized;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.none;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 import static net.bytebuddy.matcher.ElementMatchers.returns;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static net.bytebuddy.matcher.ElementMatchers.takesNoArguments;
@@ -43,9 +54,9 @@ import static net.bytebuddy.matcher.ElementMatchers.takesNoArguments;
 public class AdviceHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(AdviceHandler.class);
+    public static ElementMatcher.Junction<TypeDescription> matcher = none();
 
-
-    public static AgentBuilder buildAgentWithAdvicesAndSubstitutions(List<AdviceRule> adviceRules, List<MethodSubstitutionRule> methodSubstitutionRules, Method bootstrapMethod) {
+    public static AgentBuilder buildAgent(List<AdviceRule> adviceRules, List<MethodSubstitutionRule> methodSubstitutionRules, List<VisitorRule> visitorRules, Method bootstrapMethod) {
 
         DestroyJVMMonitor.displayAllThreads();
 
@@ -87,6 +98,14 @@ public class AdviceHandler {
                                     .failIfNoMatch(false)
                                     .on(any())));
         }
+
+        for (VisitorRule visitorRule : visitorRules) {
+            agentBuilder = agentBuilder
+                    .type(visitorRule.getTypeMatcher())
+                    .transform((builder, typeDescription, classLoader, module, isRedefinition) ->
+                            builder.visit(visitorRule.getAsmVisitorWrapper()));
+        }
+
         return agentBuilder;
     }
 
@@ -156,17 +175,16 @@ public class AdviceHandler {
                         .setMethodMatcher(isMethod().and(named("execute").or(named("submit"))))
                         .setClassName(ExecutorExecuteSubmitAdvice.class.getName())
                         .build()
+                ,
+                new AdviceRule.Builder()
+                        .setTypeMatcher(matcher)
+                        .setMethodMatcher(isSynchronized())
+                        .setClassName(SynchronizedMethodAdvice.class.getName())
+                        .build()
         );
     }
 
     public static List<MethodSubstitutionRule> createSubstitutions() {
-
-        ElementMatcher.Junction<TypeDescription> matcher = none();
-        for (String pkg : Configuration.monitoredPackages) {
-            matcher = matcher.or(nameStartsWith(pkg));
-        }
-
-
         return List.of(new MethodSubstitutionRule.Builder()
                         .setTypeMatcher(matcher)
                         .setSubstituteMethod(named("sleep")
@@ -271,5 +289,23 @@ public class AdviceHandler {
                                 .setArguments(List.of())
                                 .build())
                         .build());
+    }
+
+    public static List<VisitorRule> createAsmVisitorWrappers() {
+        ElementMatcher.Junction<TypeDescription> asmVisitorWrapperMatcher = matcher.and(not(
+                nameStartsWith("sun.")
+                        .or(nameStartsWith("com.sun."))
+                        .or(nameStartsWith("jdk."))
+                        .or(nameStartsWith("java.instrument."))
+                        .or(nameStartsWith("java.util."))
+                        .or(nameStartsWith("javax."))
+                        .or(nameStartsWith("java.lang."))
+        ));
+        return List.of(
+                new VisitorRule.Builder()
+                        .setTypeMatcher(asmVisitorWrapperMatcher)
+                        .setAsmVisitorWrapper(new MonitorEnterExitSynchronizedBlockWrapper())
+                        .build()
+        );
     }
 }

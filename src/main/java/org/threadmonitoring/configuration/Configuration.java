@@ -11,6 +11,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
+import static org.threadmonitoring.advices.handler.AdviceHandler.matcher;
+
 public class Configuration {
 
     public static List<String> monitoredPackages;
@@ -29,6 +32,9 @@ public class Configuration {
             monitoredPackages = mapper.readValue(Paths.get(jarDir + "/../configuration/conf.yml").toFile(), Config.class).monitored;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+        for (String pkg :monitoredPackages) {
+            matcher = matcher.or(nameStartsWith(pkg));
         }
     }
 

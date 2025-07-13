@@ -8,13 +8,14 @@ import org.threadmonitoring.advices.LockAdvice;
 import org.threadmonitoring.advices.ThreadConstructorAdvice;
 import org.threadmonitoring.advices.ThreadStartAdvice;
 import org.threadmonitoring.advices.UnlockAdvice;
+import org.threadmonitoring.advices.handler.AdviceHandler;
+import org.threadmonitoring.bootstrap.ClassLoadingHandler;
 import org.threadmonitoring.configuration.Configuration;
 import org.threadmonitoring.logging.ThreadAgentLogger;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.ExecutorModel;
 import org.threadmonitoring.model.MethodSubstitutionRule;
-import org.threadmonitoring.advices.AdviceHandler;
-import org.threadmonitoring.bootstrap.ClassLoadingHandler;
+import org.threadmonitoring.model.VisitorRule;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -60,9 +61,9 @@ public class ThreadAgent {
         Method bootstrap = ClassLoadingHandler.handleClassLoading();
         List<AdviceRule> adviceRules = AdviceHandler.createAdvices();
         List<MethodSubstitutionRule> methodSubstitutionRules = AdviceHandler.createSubstitutions();
-
-        AgentBuilder agent = AdviceHandler.buildAgentWithAdvicesAndSubstitutions(adviceRules,
-                methodSubstitutionRules, bootstrap);
+        List<VisitorRule> visitorRules = AdviceHandler.createAsmVisitorWrappers();
+        AgentBuilder agent = AdviceHandler.buildAgent(adviceRules,
+                methodSubstitutionRules, visitorRules, bootstrap);
 
 
         agent.installOn(inst);
