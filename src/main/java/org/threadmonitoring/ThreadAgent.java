@@ -3,7 +3,7 @@ package org.threadmonitoring;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.threadmonitoring.advices.ExecutorShutdownAdvice;
+import org.threadmonitoring.advices.ExecutorServiceShutdownAdvice;
 import org.threadmonitoring.advices.LockAdvice;
 import org.threadmonitoring.advices.ThreadConstructorAdvice;
 import org.threadmonitoring.advices.ThreadStartAdvice;
@@ -13,7 +13,7 @@ import org.threadmonitoring.bootstrap.ClassLoadingHandler;
 import org.threadmonitoring.configuration.Configuration;
 import org.threadmonitoring.logging.ThreadAgentLogger;
 import org.threadmonitoring.model.AdviceRule;
-import org.threadmonitoring.model.ExecutorModel;
+import org.threadmonitoring.model.ExecutorServiceModel;
 import org.threadmonitoring.model.MethodSubstitutionRule;
 import org.threadmonitoring.model.VisitorRule;
 
@@ -38,16 +38,16 @@ public class ThreadAgent {
 
     private static void initializeClasses() {
         ThreadConstructorAdvice.initialize();
-        ExecutorModel.initialize();
+        ExecutorServiceModel.initialize();
         LockAdvice.initialize();
         UnlockAdvice.initialize();
         ThreadStartAdvice.initialize();
-        ExecutorShutdownAdvice.initialize();
+        ExecutorServiceShutdownAdvice.initialize();
     }
 
     public static void run(Instrumentation inst) {
 
-        printAndLog("Initializing ThreadAgent before the target application to enable thread and executor monitoring");
+        printAndLog("Initializing Thread Agent before the target application to enable thread and ExecutorService monitoring");
 
         printAndLog("The logging has been configured to the " + System.getProperty("log4j2.logdir"));
 
@@ -72,7 +72,7 @@ public class ThreadAgent {
         try {
             printAndLog("Attempting to retransform classes");
             for (Class<?> clazz : inst.getAllLoadedClasses()) {
-                if (java.util.concurrent.Executor.class.isAssignableFrom(clazz)) {
+                if (java.util.concurrent.ExecutorService.class.isAssignableFrom(clazz)) {
                     inst.retransformClasses(clazz);
                 }
             }

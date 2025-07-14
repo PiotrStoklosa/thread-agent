@@ -8,9 +8,9 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.threadmonitoring.ThreadAgent;
-import org.threadmonitoring.advices.ExecutorConstructorAdvice;
-import org.threadmonitoring.advices.ExecutorExecuteSubmitAdvice;
-import org.threadmonitoring.advices.ExecutorShutdownAdvice;
+import org.threadmonitoring.advices.ExecutorServiceConstructorAdvice;
+import org.threadmonitoring.advices.ExecutorServiceExecuteSubmitAdvice;
+import org.threadmonitoring.advices.ExecutorServiceShutdownAdvice;
 import org.threadmonitoring.advices.LockAdvice;
 import org.threadmonitoring.advices.SynchronizedMethodAdvice;
 import org.threadmonitoring.advices.ThreadConstructorAdvice;
@@ -32,7 +32,6 @@ import org.threadmonitoring.substitution.call.SynchronizedCall;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 
@@ -146,7 +145,7 @@ public class AdviceHandler {
                 new AdviceRule.Builder()
                         .setTypeMatcher(isSubTypeOf(ExecutorService.class))
                         .setMethodMatcher(isMethod().and(named("shutdown")))
-                        .setClassName(ExecutorShutdownAdvice.class.getName())
+                        .setClassName(ExecutorServiceShutdownAdvice.class.getName())
                         .build()
                 ,
                 new AdviceRule.Builder()
@@ -156,15 +155,15 @@ public class AdviceHandler {
                         .build()
                 ,
                 new AdviceRule.Builder()
-                        .setTypeMatcher(isSubTypeOf(Executor.class))
+                        .setTypeMatcher(isSubTypeOf(ExecutorService.class))
                         .setMethodMatcher(isConstructor())
-                        .setClassName(ExecutorConstructorAdvice.class.getName())
+                        .setClassName(ExecutorServiceConstructorAdvice.class.getName())
                         .build()
                 ,
                 new AdviceRule.Builder()
-                        .setTypeMatcher(isSubTypeOf(Executor.class))
+                        .setTypeMatcher(isSubTypeOf(ExecutorService.class))
                         .setMethodMatcher(isMethod().and(named("execute").or(named("submit"))))
-                        .setClassName(ExecutorExecuteSubmitAdvice.class.getName())
+                        .setClassName(ExecutorServiceExecuteSubmitAdvice.class.getName())
                         .build()
                 ,
                 new AdviceRule.Builder()

@@ -2,11 +2,11 @@ package org.threadmonitoring.model;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
-public class ExecutorModel {
+public class ExecutorServiceModel {
 
-    public static Map<Executor, ExecutorModel> EXECUTOR_MAP;
+    public static Map<ExecutorService, ExecutorServiceModel> EXECUTOR_SERVICE_MAP;
 
     private final String constructorPlace;
     private final Map<String, Integer> submitPlaces = new ConcurrentHashMap<>();
@@ -15,11 +15,11 @@ public class ExecutorModel {
 
     public static void initialize() {
 
-        EXECUTOR_MAP = new ConcurrentHashMap<>();
+        EXECUTOR_SERVICE_MAP = new ConcurrentHashMap<>();
 
     }
 
-    public ExecutorModel(String constructorPlace) {
+    public ExecutorServiceModel(String constructorPlace) {
         this.constructorPlace = constructorPlace;
     }
 

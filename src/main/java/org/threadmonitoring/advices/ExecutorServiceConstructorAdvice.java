@@ -4,18 +4,18 @@ import net.bytebuddy.asm.Advice;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.threadmonitoring.configuration.Configuration;
-import org.threadmonitoring.model.ExecutorModel;
+import org.threadmonitoring.model.ExecutorServiceModel;
 
 import java.lang.reflect.Executable;
 import java.util.Optional;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
-import static org.threadmonitoring.model.ExecutorModel.EXECUTOR_MAP;
+import static org.threadmonitoring.model.ExecutorServiceModel.EXECUTOR_SERVICE_MAP;
 
-public class ExecutorConstructorAdvice {
+public class ExecutorServiceConstructorAdvice {
 
-    public static Logger LOGGER = LogManager.getLogger(ExecutorConstructorAdvice.class);
-    public static ThreadLocal<Integer> stackOfExecutorConstructors = ThreadLocal.withInitial(() -> 0);
+    public static Logger LOGGER = LogManager.getLogger(ExecutorServiceConstructorAdvice.class);
+    public static ThreadLocal<Integer> stackOfExecutorServiceConstructors = ThreadLocal.withInitial(() -> 0);
 
 
     @Advice.OnMethodEnter(inline = false)
@@ -23,16 +23,16 @@ public class ExecutorConstructorAdvice {
             @Advice.Origin Executable methodOrConstructor,
             @Advice.AllArguments Object[] args
     ) {
-        stackOfExecutorConstructors.set(stackOfExecutorConstructors.get() + 1);
+        stackOfExecutorServiceConstructors.set(stackOfExecutorServiceConstructors.get() + 1);
     }
 
     @Advice.OnMethodExit(inline = false)
     public static synchronized void interceptExit(
             @Advice.Origin Executable methodOrConstructor,
             @Advice.AllArguments Object[] args,
-            @Advice.This Executor executor
+            @Advice.This ExecutorService executorService
     ) {
-        if (stackOfExecutorConstructors.get() == 1) {
+        if (stackOfExecutorServiceConstructors.get() == 1) {
 
             Optional<StackWalker.StackFrame> place = StackWalker.getInstance()
                     .walk(frames -> frames.filter(f -> Configuration.monitoredPackages.stream().anyMatch(f.getClassName()::startsWith))
@@ -40,11 +40,11 @@ public class ExecutorConstructorAdvice {
 
             if (place.isPresent()) {
                 String p = String.valueOf(place.get());
-                LOGGER.info("Thread {} created new {} at {}", Thread.currentThread().getName(), executor, p);
-                EXECUTOR_MAP.put(executor, new ExecutorModel(p));
+                LOGGER.info("Thread {} created new {} at {}", Thread.currentThread().getName(), executorService, p);
+                EXECUTOR_SERVICE_MAP.put(executorService, new ExecutorServiceModel(p));
             }
         }
-        stackOfExecutorConstructors.set(stackOfExecutorConstructors.get() - 1);
+        stackOfExecutorServiceConstructors.set(stackOfExecutorServiceConstructors.get() - 1);
     }
 
 }

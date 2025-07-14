@@ -6,25 +6,24 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Executable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ThreadConstructorAdvice {
 
     public static Logger LOGGER;
     public static AtomicInteger numberOfThreads;
-    public static Map<Long, Executor> threadToExecutorMap;
+    public static Map<Long, ExecutorService> threadToExecutorServiceMap;
     public static List<Thread> threads;
 
     public static void initialize() {
         LOGGER = LogManager.getLogger(ThreadConstructorAdvice.class);
         numberOfThreads = new AtomicInteger(0);
-        threadToExecutorMap = new WeakHashMap<>();
+        threadToExecutorServiceMap = new WeakHashMap<>();
         threads = Collections.synchronizedList(new ArrayList<>());
     }
 
@@ -37,12 +36,12 @@ public final class ThreadConstructorAdvice {
 
         numberOfThreads.addAndGet(1);
         threads.add(thread);
-        Executor executor = ExecutorExecuteSubmitAdvice.currentExecutor.get();
-        if (executor != null) {
-            synchronized (threadToExecutorMap) {
-                threadToExecutorMap.put(thread.getId(), executor);
+        ExecutorService executorService = ExecutorServiceExecuteSubmitAdvice.currentExecutorService.get();
+        if (executorService != null) {
+            synchronized (threadToExecutorServiceMap) {
+                threadToExecutorServiceMap.put(thread.getId(), executorService);
             }
-            LOGGER.info("Thread {} created by Executor: {}", thread.getName(), executor);
+            LOGGER.info("Thread {} created by ExecutorService: {}", thread.getName(), executorService);
         } else {
             LOGGER.info("Thread {} created independently", thread.getName());
         }
