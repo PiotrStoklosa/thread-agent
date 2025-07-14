@@ -148,15 +148,6 @@ public class AdviceHandler {
                         .setMethodMatcher(isMethod().and(named("shutdown")))
                         .setClassName(ExecutorShutdownAdvice.class.getName())
                         .build()
-/*                ,
-                new AdviceRule.Builder()
-                        .setTypeMatcher(any())
-                        .setMethodMatcher(isMethod().and(ElementMatchers.named("main")
-                                        .and(takesArguments(String[].class))
-                                        .and(isPublic())
-                                       .and(isStatic())))
-                        .setClassName(ThreadStatusScanner.class.getName())
-                        .build()*/
                 ,
                 new AdviceRule.Builder()
                         .setTypeMatcher(isSubTypeOf(Thread.class))
