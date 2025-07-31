@@ -44,11 +44,12 @@ public class ThreadAgentEntry {
             }).toArray(URL[]::new);
 
             AgentClassLoader agentClassLoader = new AgentClassLoader(urls, Thread.currentThread().getContextClassLoader());
+            ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(agentClassLoader);
             Class<?> agentMain = agentClassLoader.loadClass("org.threadmonitoring.ThreadAgent");
-            Method run = agentMain.getDeclaredMethod("run", Instrumentation.class);
+            Method run = agentMain.getDeclaredMethod("run", Instrumentation.class, ClassLoader.class);
 
-            run.invoke(null, inst);
+            run.invoke(null, inst, currentContextClassLoader);
         }
     }
 }
