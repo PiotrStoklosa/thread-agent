@@ -1,5 +1,6 @@
 package org.threadmonitoring.substitution;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 
@@ -66,6 +67,20 @@ public class ConditionSubstitution {
                 , ConditionSubstitution.class
                 , "INFO");
         boolean retVal = condition.await(time, unit);
+        LoggingNotifier.log(
+                "Thread " + Thread.currentThread().getName() + " woken up"
+                , ConditionSubstitution.class
+                , "INFO");
+        return retVal;
+    }
+
+    public static boolean awaitUntil2(Condition condition, Date deadline) throws InterruptedException {
+        LoggingNotifier.log(
+                "Thread " + Thread.currentThread().getName() + " awaits on " + condition.toString() +
+                        " until " + deadline.toString()
+                , ConditionSubstitution.class
+                , "INFO");
+        boolean retVal = condition.awaitUntil(deadline);
         LoggingNotifier.log(
                 "Thread " + Thread.currentThread().getName() + " woken up"
                 , ConditionSubstitution.class
