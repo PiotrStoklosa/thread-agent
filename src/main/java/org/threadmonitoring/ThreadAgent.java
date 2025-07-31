@@ -45,7 +45,7 @@ public class ThreadAgent {
         ExecutorServiceShutdownAdvice.initialize();
     }
 
-    public static void run(Instrumentation inst) {
+    public static void run(Instrumentation inst, ClassLoader contextClassLoader) {
 
         printAndLog("Initializing Thread Agent before the target application to enable thread and ExecutorService monitoring");
 
@@ -82,7 +82,7 @@ public class ThreadAgent {
         } catch (UnmodifiableClassException e) {
             printAndLogError("Error occurred during retransforming classes" + e.getMessage());
         }
-        Thread.currentThread().setContextClassLoader(ClassLoader.getSystemClassLoader());
+        Thread.currentThread().setContextClassLoader(contextClassLoader);
         printAndLog("Transformation and Retransformation finished, " +
                 "Thread Agent is working, " +
                 "running target application...\n\n\n");
