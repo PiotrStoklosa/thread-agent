@@ -3,9 +3,11 @@ package org.threadmonitoring.advices;
 import net.bytebuddy.asm.Advice;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.threadmonitoring.analyzer.DeadlockAnalyzer;
 import org.threadmonitoring.configuration.Configuration;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
@@ -17,11 +19,7 @@ public class LockAdvice {
         LOGGER = LogManager.getLogger(LockAdvice.class);
     }
 
-    @Advice.OnMethodEnter(inline = false)
-    public static void interceptEntry(
-            @Advice.This Lock lock
-    ) {
-
+    private static Optional<StackWalker.StackFrame> findCallingLockPlace() {
         StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
         List<StackWalker.StackFrame> frames = walker.walk(stream -> stream.collect(Collectors.toList()));
@@ -40,11 +38,40 @@ public class LockAdvice {
                 );
 
                 if (allFromMonitored && !callers.isEmpty()) {
-                    LOGGER.info("Lock {} acquired (or waiting to be acquired) by thread {} at {}",
-                            lock.toString(), Thread.currentThread().getName(), callers.get(0));
+                    return Optional.of(callers.get(0));
                 }
-                return;
+                return Optional.empty();
             }
         }
+        return Optional.empty();
     }
+
+    @Advice.OnMethodEnter(inline = false)
+    public static void interceptEntry(
+            @Advice.This Lock lock
+    ) {
+
+        Optional<StackWalker.StackFrame> lockCall = findCallingLockPlace();
+
+        if (lockCall.isPresent()) {
+            LOGGER.info("Lock {} waiting to be acquired by thread {} at {}",
+                    lock.toString(), Thread.currentThread().getName(), lockCall.get());
+            DeadlockAnalyzer.beforeWaitingForResource(Thread.currentThread(), lock);
+        }
+    }
+
+    @Advice.OnMethodExit(inline = false)
+    public static void interceptExit(
+            @Advice.This Lock lock
+    ) {
+        Optional<StackWalker.StackFrame> lockCall = findCallingLockPlace();
+
+        if (lockCall.isPresent()) {
+            LOGGER.info("Lock {} acquired by thread {} at {}",
+                    lock.toString(), Thread.currentThread().getName(), lockCall.get());
+            DeadlockAnalyzer.afterWaitingForResource(Thread.currentThread(), lock, true);
+        }
+
+    }
+
 }

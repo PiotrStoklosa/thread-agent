@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.threadmonitoring.substitution.LoggingNotifier.emergencyLoggingQueue;
 import static org.threadmonitoring.substitution.LoggingNotifier.queue;
 
 
@@ -14,7 +15,7 @@ public class ThreadAgentLogger {
 
     private static final Map<String, Logger> substitutedClassLoggers = new HashMap<>();
 
-    public static void startLogReader() {
+    public static void startLogReaders() {
         Thread reader = new Thread(() -> {
             try {
                 while (true) {
@@ -30,9 +31,20 @@ public class ThreadAgentLogger {
                 Thread.currentThread().interrupt();
             }
         });
-        // We want to ensure that the application can terminate even if a background task in the Thread Agent is still running.
         reader.setDaemon(true);
         reader.start();
+
+        Thread emergencyReader = new Thread(() -> {
+            try {
+                while (true) {
+                    EmergencyLogger.log(emergencyLoggingQueue.take());
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        emergencyReader.setDaemon(true);
+        emergencyReader.start();
     }
 
 }

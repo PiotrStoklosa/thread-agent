@@ -53,7 +53,7 @@ public class ThreadAgent {
 
         Configuration.readConfiguration();
 
-        ThreadAgentLogger.startLogReader();
+        ThreadAgentLogger.startLogReaders();
         initializeClasses();
 
         printAndLog("Initialized advices");
