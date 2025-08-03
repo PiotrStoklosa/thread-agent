@@ -8,6 +8,7 @@ public class LoggingNotifier {
 
     private static final AtomicLong id = new AtomicLong(0);
     public static BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+    public static BlockingQueue<String> emergencyLoggingQueue = new LinkedBlockingQueue<>();
 
     public static synchronized void log(String message, Class<?> logger, String level) {
         long freshId = id.getAndIncrement();
@@ -22,6 +23,10 @@ public class LoggingNotifier {
                         .append(level)
                         .toString()
         );
+    }
+
+    public static synchronized void emergencyLog(String message) {
+        emergencyLoggingQueue.offer(message);
     }
 
 }

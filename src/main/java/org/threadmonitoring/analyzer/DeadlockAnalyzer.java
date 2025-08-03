@@ -1,0 +1,100 @@
+package org.threadmonitoring.analyzer;
+
+import org.threadmonitoring.substitution.LoggingNotifier;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class DeadlockAnalyzer {
+
+    private static final Map<Object, Thread> lockedBy = new ConcurrentHashMap<>();
+
+    private static final Map<Thread, Object> waitingFor = new ConcurrentHashMap<>();
+
+
+    public static synchronized void beforeWaitingForResource(Thread thread, Object resource) {
+        waitingFor.put(thread, resource);
+
+        Thread owner = lockedBy.get(resource);
+        if (owner != null && owner != thread) {
+            detectCycle(thread);
+        }
+    }
+
+    public static synchronized void afterWaitingForResource(Thread thread, Object resource, boolean acquiredLock) {
+
+        waitingFor.remove(thread);
+        if (acquiredLock) {
+            lockedBy.put(resource, thread);
+        }
+
+    }
+
+    public static synchronized void afterReleasingResource(Object resource) {
+        lockedBy.remove(resource);
+    }
+
+    private static synchronized void detectCycle(Thread start) {
+        List<Thread> potentialThreads = new ArrayList<>();
+        potentialThreads.add(start);
+        Set<Thread> visited = new HashSet<>();
+        Thread current = start;
+
+        while (true) {
+            Object wanted = waitingFor.get(current);
+            if (wanted == null) {
+                return;
+            }
+
+            Thread owner = lockedBy.get(wanted);
+            if (owner == null) {
+                return;
+            }
+            potentialThreads.add(owner);
+            if (owner == start) {
+                LoggingNotifier.emergencyLog("Potential deadlock detected!");
+                LoggingNotifier.emergencyLog("Deadlock cycle: ");
+                StringBuilder sb = new StringBuilder();
+                boolean first = true;
+                for (Thread t : potentialThreads) {
+                    if (first) {
+                        first = false;
+                        sb.append(t);
+                    } else {
+                        sb.append(" -> ").append(t);
+                    }
+                }
+                LoggingNotifier.emergencyLog(sb.toString());
+                LoggingNotifier.emergencyLog("Stack traces of involved threads:");
+                potentialThreads.remove(potentialThreads.size() - 1);
+                for (Thread t : potentialThreads) {
+                    LoggingNotifier.emergencyLog("Thread: " + t.getName() + " (ID: " + t.getId() + ")");
+                    try {
+                        StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+                        walker.forEach(frame -> {
+                            if (!frame.getClassName().startsWith("org.threadmonitoring")) {
+                                LoggingNotifier.emergencyLog("    at " + frame);
+                            }
+                        });
+                    } catch (Exception e) {
+                        for (StackTraceElement elem : t.getStackTrace()) {
+                            LoggingNotifier.emergencyLog("    at " + elem);
+                        }
+                    }
+                    LoggingNotifier.emergencyLog("");
+                }
+                return;
+            }
+            if (!visited.add(owner)) {
+                return;
+            }
+
+            current = owner;
+        }
+    }
+
+}
