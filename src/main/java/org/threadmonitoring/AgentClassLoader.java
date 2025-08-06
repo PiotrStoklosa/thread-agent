@@ -15,7 +15,7 @@ public class AgentClassLoader extends URLClassLoader {
             /* These classes should not be loaded with the Agent Class Loader,
                as they need to be accessible in both the monitored application and the Thread Agent. */
             if (name.startsWith("org.threadmonitoring.substitution") ||
-                    name.startsWith("org.threadmonitoring.logging") ||
+                    name.startsWith("org.threadmonitoring.logger") ||
                     name.startsWith("org.threadmonitoring.analyzer")){
                 return getParent().loadClass(name);
             }
