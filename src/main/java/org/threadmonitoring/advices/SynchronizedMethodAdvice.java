@@ -4,8 +4,8 @@ import net.bytebuddy.asm.Advice;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static org.threadmonitoring.logging.SynchronizedLogger.logEnter2;
-import static org.threadmonitoring.logging.SynchronizedLogger.logExit;
+import static org.threadmonitoring.logger.SynchronizedLogger.logEnter2;
+import static org.threadmonitoring.logger.SynchronizedLogger.logExit;
 
 
 public class SynchronizedMethodAdvice {

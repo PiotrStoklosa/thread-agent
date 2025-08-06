@@ -57,7 +57,7 @@ public class MonitorEnterExitSynchronizedBlockWrapper implements AsmVisitorWrapp
                                 super.visitInsn(Opcodes.MONITORENTER);
                                 super.visitMethodInsn(
                                         Opcodes.INVOKESTATIC,
-                                        "org/threadmonitoring/logging/SynchronizedLogger",
+                                        "org/threadmonitoring/logger/SynchronizedLogger",
                                         "logEnter2",
                                         "()V",
                                         false
@@ -77,7 +77,7 @@ public class MonitorEnterExitSynchronizedBlockWrapper implements AsmVisitorWrapp
                         super.visitInsn(Opcodes.DUP);
                         super.visitMethodInsn(
                                 Opcodes.INVOKESTATIC,
-                                "org/threadmonitoring/logging/SynchronizedLogger",
+                                "org/threadmonitoring/logger/SynchronizedLogger",
                                 methodName,
                                 "(Ljava/lang/Object;)V",
                                 false
