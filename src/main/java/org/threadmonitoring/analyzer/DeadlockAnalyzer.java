@@ -18,7 +18,6 @@ public class DeadlockAnalyzer {
 
     public static synchronized void beforeWaitingForResource(Thread thread, Object resource) {
         waitingFor.put(thread, resource);
-
         Thread owner = lockedBy.get(resource);
         if (owner != null && owner != thread) {
             detectCycle(thread);
@@ -26,12 +25,10 @@ public class DeadlockAnalyzer {
     }
 
     public static synchronized void afterWaitingForResource(Thread thread, Object resource, boolean acquiredLock) {
-
         waitingFor.remove(thread);
         if (acquiredLock) {
             lockedBy.put(resource, thread);
         }
-
     }
 
     public static synchronized void afterReleasingResource(Object resource) {
@@ -49,7 +46,6 @@ public class DeadlockAnalyzer {
             if (wanted == null) {
                 return;
             }
-
             Thread owner = lockedBy.get(wanted);
             if (owner == null) {
                 return;
@@ -73,17 +69,19 @@ public class DeadlockAnalyzer {
                 potentialThreads.remove(potentialThreads.size() - 1);
                 for (Thread t : potentialThreads) {
                     LoggingNotifier.emergencyLog("Thread: " + t.getName() + " (ID: " + t.getId() + ")");
+
                     try {
-                        StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
-                        walker.forEach(frame -> {
-                            if (!frame.getClassName().startsWith("org.threadmonitoring")) {
+                        StackTraceElement[] stack = t.getStackTrace();
+                        for (StackTraceElement frame : stack) {
+                            if (!frame.getClassName().startsWith("org.threadmonitoring")
+                                    && !frame.getClassName().startsWith("java.lang")
+                                    && !frame.getClassName().startsWith("java.util")
+                                    && !frame.getClassName().startsWith("java.base")) {
                                 LoggingNotifier.emergencyLog("    at " + frame);
                             }
-                        });
-                    } catch (Exception e) {
-                        for (StackTraceElement elem : t.getStackTrace()) {
-                            LoggingNotifier.emergencyLog("    at " + elem);
                         }
+                    } catch (Exception e) {
+                        LoggingNotifier.emergencyLog("    <Unable to get stack trace: " + e.getMessage() + ">");
                     }
                     LoggingNotifier.emergencyLog("");
                 }
@@ -92,7 +90,6 @@ public class DeadlockAnalyzer {
             if (!visited.add(owner)) {
                 return;
             }
-
             current = owner;
         }
     }

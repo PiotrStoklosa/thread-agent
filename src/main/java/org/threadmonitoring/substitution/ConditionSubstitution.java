@@ -1,5 +1,7 @@
 package org.threadmonitoring.substitution;
 
+import org.threadmonitoring.analyzer.DeadlockAnalyzer;
+
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -27,7 +29,9 @@ public class ConditionSubstitution {
                 "Thread " + Thread.currentThread().getName() + " await uninterruptedly on " + condition.toString()
                 , ConditionSubstitution.class
                 , "INFO");
+        DeadlockAnalyzer.beforeWaitingForResource(Thread.currentThread(), condition);
         condition.awaitUninterruptibly();
+        DeadlockAnalyzer.afterWaitingForResource(Thread.currentThread(), condition, false);
         LoggingNotifier.log(
                 "Thread " + Thread.currentThread().getName() + " woken up"
                 , ConditionSubstitution.class
@@ -39,7 +43,9 @@ public class ConditionSubstitution {
                 "Thread " + Thread.currentThread().getName() + " awaits on " + condition.toString()
                 , ConditionSubstitution.class
                 , "INFO");
+        DeadlockAnalyzer.beforeWaitingForResource(Thread.currentThread(), condition);
         condition.await();
+        DeadlockAnalyzer.afterWaitingForResource(Thread.currentThread(), condition, false);
         LoggingNotifier.log(
                 "Thread " + Thread.currentThread().getName() + " woken up"
                 , ConditionSubstitution.class
