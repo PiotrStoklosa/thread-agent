@@ -56,7 +56,6 @@ public class UnlockAdvice {
         if (unlockCall.isPresent()) {
             LOGGER.info("Lock {} released by thread {} at {}",
                     lock.toString(), Thread.currentThread().getName(), unlockCall.get());
-            DeadlockAnalyzer.beforeWaitingForResource(Thread.currentThread(), lock);
         }
 
     }

@@ -25,18 +25,43 @@ public class MonitorEnterExitSynchronizedBlockWrapper implements AsmVisitorWrapp
     }
 
     @Override
-    public net.bytebuddy.jar.asm.ClassVisitor wrap(TypeDescription typeDescription, net.bytebuddy.jar.asm.ClassVisitor classVisitor, Implementation.Context context, TypePool typePool, FieldList<FieldDescription.InDefinedShape> fieldList, MethodList<?> methodList, int i, int i1) {
+    public net.bytebuddy.jar.asm.ClassVisitor wrap(TypeDescription typeDescription,
+                                                   net.bytebuddy.jar.asm.ClassVisitor classVisitor,
+                                                   Implementation.Context context,
+                                                   TypePool typePool,
+                                                   FieldList<FieldDescription.InDefinedShape> fieldList,
+                                                   MethodList<?> methodList, int i, int i1) {
+
         return new ClassVisitor(Opcodes.ASM9, classVisitor) {
             @Override
-            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+            public MethodVisitor visitMethod(int access, String name, String descriptor,
+                                             String signature, String[] exceptions) {
                 MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                 return new MethodVisitor(Opcodes.ASM9, mv) {
+
+                    @Override
+                    public void visitCode() {
+                        super.visitCode();
+                    }
+
+                    @Override
+                    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+                        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+                    }
+
                     @Override
                     public void visitInsn(int opcode) {
                         switch (opcode) {
                             case Opcodes.MONITORENTER:
                                 injectLogger("logEnter");
                                 super.visitInsn(Opcodes.MONITORENTER);
+                                super.visitMethodInsn(
+                                        Opcodes.INVOKESTATIC,
+                                        "org/threadmonitoring/logging/SynchronizedLogger",
+                                        "logEnter2",
+                                        "()V",
+                                        false
+                                );
                                 break;
                             case Opcodes.MONITOREXIT:
                                 injectLogger("logExit");
@@ -50,18 +75,11 @@ public class MonitorEnterExitSynchronizedBlockWrapper implements AsmVisitorWrapp
 
                     private void injectLogger(String methodName) {
                         super.visitInsn(Opcodes.DUP);
-
-                        super.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", false);
-                        super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Thread", "getName", "()Ljava/lang/String;", false);
-
-                        super.visitInsn(Opcodes.SWAP);
-                        super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "toString", "()Ljava/lang/String;", false);
-
                         super.visitMethodInsn(
                                 Opcodes.INVOKESTATIC,
-                                "org/threadmonitoring/visit/SynchronizedLogger",
+                                "org/threadmonitoring/logging/SynchronizedLogger",
                                 methodName,
-                                "(Ljava/lang/String;Ljava/lang/String;)V",
+                                "(Ljava/lang/Object;)V",
                                 false
                         );
                     }
