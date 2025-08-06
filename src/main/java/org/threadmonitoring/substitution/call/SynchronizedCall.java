@@ -1,6 +1,6 @@
 package org.threadmonitoring.substitution.call;
 
-import org.threadmonitoring.logging.SynchronizedLogger;
+import org.threadmonitoring.logger.SynchronizedLogger;
 
 public class SynchronizedCall {
 

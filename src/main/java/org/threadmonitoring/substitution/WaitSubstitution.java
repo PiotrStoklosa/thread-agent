@@ -1,7 +1,7 @@
 package org.threadmonitoring.substitution;
 
 import org.threadmonitoring.analyzer.DeadlockAnalyzer;
-import org.threadmonitoring.logging.SynchronizedLogger;
+import org.threadmonitoring.logger.SynchronizedLogger;
 
 public class WaitSubstitution {
     public static void wait2(Object o) throws InterruptedException {

@@ -1,4 +1,4 @@
-package org.threadmonitoring.logging;
+package org.threadmonitoring.logger;
 
 import org.threadmonitoring.analyzer.DeadlockAnalyzer;
 import org.threadmonitoring.substitution.LoggingNotifier;
