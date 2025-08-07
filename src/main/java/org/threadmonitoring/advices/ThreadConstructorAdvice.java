@@ -4,7 +4,6 @@ import net.bytebuddy.asm.Advice;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +28,6 @@ public final class ThreadConstructorAdvice {
 
     @Advice.OnMethodExit(inline = false)
     public static void interceptExit(
-            @Advice.Origin Executable methodOrConstructor,
-            @Advice.AllArguments Object[] args,
             @Advice.This Thread thread
     ) {
 

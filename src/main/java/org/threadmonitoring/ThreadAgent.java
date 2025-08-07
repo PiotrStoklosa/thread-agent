@@ -11,6 +11,7 @@ import org.threadmonitoring.advices.UnlockAdvice;
 import org.threadmonitoring.advices.handler.AdviceHandler;
 import org.threadmonitoring.bootstrap.ClassLoadingHandler;
 import org.threadmonitoring.configuration.Configuration;
+import org.threadmonitoring.jvm.AlreadyCreatedThreadHandler;
 import org.threadmonitoring.logging.ThreadAgentLogger;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.ExecutorServiceModel;
@@ -86,5 +87,7 @@ public class ThreadAgent {
         printAndLog("Transformation and Retransformation finished, " +
                 "Thread Agent is working, " +
                 "running target application...\n\n\n");
+
+        AlreadyCreatedThreadHandler.logAlreadyCreatedThreads();
     }
 }
