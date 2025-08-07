@@ -53,6 +53,8 @@ public class DeadlockAnalyzer {
             potentialThreads.add(owner);
             if (owner == start) {
                 LoggingNotifier.emergencyLog("Potential deadlock detected!");
+                LoggingNotifier.log("Potential deadlock detected! Please check emergency log for details",
+                        DeadlockAnalyzer.class, "ERROR");
                 LoggingNotifier.emergencyLog("Deadlock cycle: ");
                 StringBuilder sb = new StringBuilder();
                 boolean first = true;
