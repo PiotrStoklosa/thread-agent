@@ -22,6 +22,14 @@ public class EmergencyLogger {
         return mainLog.replace(".log", "_emergency.log");
     }
 
+    public static synchronized void initialize() {
+        try (FileWriter fw = new FileWriter(LOG_FILE, true)) {
+            fw.write("");
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
     public static synchronized void log(String message) {
         try (FileWriter fw = new FileWriter(LOG_FILE, true)) {
             fw.write("[" + LocalDateTime.now().format(formatter) + "] " + message + "\n");

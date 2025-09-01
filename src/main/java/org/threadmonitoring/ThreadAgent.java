@@ -13,6 +13,7 @@ import org.threadmonitoring.advices.handler.AdviceHandler;
 import org.threadmonitoring.bootstrap.ClassLoadingHandler;
 import org.threadmonitoring.configuration.Configuration;
 import org.threadmonitoring.jvm.AlreadyCreatedThreadHandler;
+import org.threadmonitoring.logging.EmergencyLogger;
 import org.threadmonitoring.logging.ThreadAgentLogger;
 import org.threadmonitoring.model.AdviceRule;
 import org.threadmonitoring.model.ExecutorServiceModel;
@@ -46,6 +47,7 @@ public class ThreadAgent {
         ThreadStartAdvice.initialize();
         ExecutorServiceShutdownAdvice.initialize();
         InterruptAdvice.initialize();
+        EmergencyLogger.initialize();
     }
 
     public static void run(Instrumentation inst, ClassLoader contextClassLoader) {
