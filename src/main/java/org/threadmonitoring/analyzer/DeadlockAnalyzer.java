@@ -15,6 +15,9 @@ public class DeadlockAnalyzer {
 
     private static final Map<Thread, Object> waitingFor = new ConcurrentHashMap<>();
 
+    public static synchronized boolean isHoldingMonitor(Object monitor) {
+        return lockedBy.containsKey(monitor) && lockedBy.get(monitor).equals(Thread.currentThread());
+    }
 
     public static synchronized void beforeWaitingForResource(Thread thread, Object resource) {
         waitingFor.put(thread, resource);
