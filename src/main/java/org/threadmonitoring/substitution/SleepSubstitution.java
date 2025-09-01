@@ -8,7 +8,15 @@ public class SleepSubstitution {
                 "Thread " + Thread.currentThread().getName() + " started sleeping for " + millis + " ms"
                 , SleepSubstitution.class
                 , "INFO");
-        Thread.sleep(millis);
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            LoggingNotifier.log(
+                    "Thread " + Thread.currentThread().getName() + " finished sleeping earlier because of " + e
+                    , SleepSubstitution.class
+                    , "INFO");
+            throw e;
+        }
         LoggingNotifier.log(
                 "Thread " + Thread.currentThread().getName() + " finished sleeping for " + millis + " ms"
                 , SleepSubstitution.class

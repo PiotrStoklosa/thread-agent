@@ -15,8 +15,12 @@ public class DeadlockAnalyzer {
 
     private static final Map<Thread, Object> waitingFor = new ConcurrentHashMap<>();
 
+    private static final List<String> destroyJavaVM = List.of("DestroyJavaVM");
+
     public static synchronized boolean isHoldingMonitor(Object monitor) {
-        return lockedBy.containsKey(monitor) && lockedBy.get(monitor).equals(Thread.currentThread());
+        return destroyJavaVM.contains(Thread.currentThread().getName())
+                || lockedBy.containsKey(monitor)
+                && lockedBy.get(monitor).equals(Thread.currentThread());
     }
 
     public static synchronized void beforeWaitingForResource(Thread thread, Object resource) {
