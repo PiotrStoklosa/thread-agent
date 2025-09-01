@@ -11,6 +11,7 @@ import org.threadmonitoring.ThreadAgent;
 import org.threadmonitoring.advices.ExecutorServiceConstructorAdvice;
 import org.threadmonitoring.advices.ExecutorServiceExecuteSubmitAdvice;
 import org.threadmonitoring.advices.ExecutorServiceShutdownAdvice;
+import org.threadmonitoring.advices.InterruptAdvice;
 import org.threadmonitoring.advices.LockAdvice;
 import org.threadmonitoring.advices.SynchronizedMethodAdvice;
 import org.threadmonitoring.advices.ThreadConstructorAdvice;
@@ -132,6 +133,12 @@ public class AdviceHandler {
                         .setTypeMatcher(is(Thread.class))
                         .setMethodMatcher(isConstructor().and(takesArguments(6)))
                         .setClassName(ThreadConstructorAdvice.class.getName())
+                        .build()
+                ,
+                new AdviceRule.Builder()
+                        .setTypeMatcher(is(Thread.class))
+                        .setMethodMatcher(isMethod().and(named("interrupt")))
+                        .setClassName(InterruptAdvice.class.getName())
                         .build()
                 ,
                 new AdviceRule.Builder()

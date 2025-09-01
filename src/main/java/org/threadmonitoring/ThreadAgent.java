@@ -4,6 +4,7 @@ import net.bytebuddy.agent.builder.AgentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.threadmonitoring.advices.ExecutorServiceShutdownAdvice;
+import org.threadmonitoring.advices.InterruptAdvice;
 import org.threadmonitoring.advices.LockAdvice;
 import org.threadmonitoring.advices.ThreadConstructorAdvice;
 import org.threadmonitoring.advices.ThreadStartAdvice;
@@ -44,6 +45,7 @@ public class ThreadAgent {
         UnlockAdvice.initialize();
         ThreadStartAdvice.initialize();
         ExecutorServiceShutdownAdvice.initialize();
+        InterruptAdvice.initialize();
     }
 
     public static void run(Instrumentation inst, ClassLoader contextClassLoader) {
