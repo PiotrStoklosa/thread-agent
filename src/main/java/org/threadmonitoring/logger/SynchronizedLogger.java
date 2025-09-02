@@ -44,10 +44,12 @@ public class SynchronizedLogger {
     }
 
     public static void logExit(Object monitor) {
-        if (synchronizedMap.get().get(monitor) == 1) {
-            LoggingNotifier.log("Thread " + Thread.currentThread().getName() + " released monitor: " + monitor.toString(), SynchronizedLogger.class, "INFO");
-            DeadlockAnalyzer.afterReleasingResource(monitor);
+        if (synchronizedMap.get().get(monitor) != null) {
+            if (synchronizedMap.get().get(monitor) == 1) {
+                LoggingNotifier.log("Thread " + Thread.currentThread().getName() + " released monitor: " + monitor.toString(), SynchronizedLogger.class, "INFO");
+                DeadlockAnalyzer.afterReleasingResource(monitor);
+            }
+            synchronizedMap.get().put(monitor, synchronizedMap.get().get(monitor) - 1);
         }
-        synchronizedMap.get().put(monitor, synchronizedMap.get().get(monitor) - 1);
     }
 }

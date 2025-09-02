@@ -15,9 +15,10 @@ public class WaitSubstitution {
         if (!isHoldingMonitor(o)) {
             emergencyLog("Thread " + Thread.currentThread().getName() + " called wait() on object: " + o.toString() +
                     " without holding the monitor on required object! Application will throw IllegalMonitorStateException");
+        } else {
+            SynchronizedLogger.logExit(o);
+            DeadlockAnalyzer.beforeWaitingForResource(Thread.currentThread(), o);
         }
-        SynchronizedLogger.logExit(o);
-        DeadlockAnalyzer.beforeWaitingForResource(Thread.currentThread(), o);
         o.wait();
         SynchronizedLogger.logEnter2(o);
         DeadlockAnalyzer.afterWaitingForResource(Thread.currentThread(), o, false);
@@ -29,17 +30,18 @@ public class WaitSubstitution {
 
     public static void waitUntil2(Object o, long timeoutMillis) throws InterruptedException {
         LoggingNotifier.log(
-                "Thread " + Thread.currentThread().getName() + " called wait()" + timeoutMillis +
-                        " on object: " + o.toString()
+                "Thread " + Thread.currentThread().getName() + " called wait(" + timeoutMillis +
+                        ") on object: " + o.toString()
                 , WaitSubstitution.class
                 , "INFO");
         if (!isHoldingMonitor(o)) {
             emergencyLog("Thread " + Thread.currentThread().getName() + " called wait(" + timeoutMillis
                     + ") on object: " + o.toString() +
                     " without holding the monitor on required object! Application will throw IllegalMonitorStateException");
+        } else {
+            SynchronizedLogger.logExit(o);
+            DeadlockAnalyzer.beforeWaitingForResource(Thread.currentThread(), o);
         }
-        SynchronizedLogger.logExit(o);
-        DeadlockAnalyzer.beforeWaitingForResource(Thread.currentThread(), o);
         o.wait(timeoutMillis);
         SynchronizedLogger.logEnter2(o);
         DeadlockAnalyzer.afterWaitingForResource(Thread.currentThread(), o, false);

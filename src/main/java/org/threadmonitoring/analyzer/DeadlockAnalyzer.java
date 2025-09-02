@@ -15,7 +15,7 @@ public class DeadlockAnalyzer {
 
     private static final Map<Thread, Object> waitingFor = new ConcurrentHashMap<>();
 
-    private static final List<String> destroyJavaVM = List.of("DestroyJavaVM");
+    private static final List<String> destroyJavaVM = List.of("DestroyJavaVM", "SIGINT");
 
     public static synchronized boolean isHoldingMonitor(Object monitor) {
         return destroyJavaVM.contains(Thread.currentThread().getName())
