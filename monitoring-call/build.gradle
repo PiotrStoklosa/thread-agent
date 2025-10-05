@@ -1,5 +1,5 @@
 plugins {
-    id 'java-library'
+    id 'java'
 }
 
 group = 'org.threadmonitoring'
@@ -14,6 +14,16 @@ repositories {
 }
 jar {
     destinationDirectory.set(file("${projectDir}/../threadmonitoring/lib"))
+}
+tasks.named('clean') {
+    doLast {
+        def libDir = file("${rootProject.projectDir}/threadmonitoring/lib")
+        if (libDir.exists()) {
+            libDir.listFiles()?.findAll { it.name.startsWith("monitoring-call") && it.name.endsWith(".jar") }?.each { jarFile ->
+                project.delete(jarFile)
+            }
+        }
+    }
 }
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')

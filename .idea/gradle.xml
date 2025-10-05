@@ -5,10 +5,13 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="" />
+        <option name="gradleJvm" value="#JAVA_HOME" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/monitoring-call" />
+            <option value="$PROJECT_DIR$/thread-agent-api" />
+            <option value="$PROJECT_DIR$/thread-agent-entry" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -23,8 +23,11 @@ tasks.jar {
     destinationDirectory.set(file("${projectDir}/../threadmonitoring/api"))
 }
 
-tasks.clean {
-    doFirst {
-        delete file("${projectDir}/../threadmonitoring/api")
+tasks.named('clean') {
+    doLast {
+        def apiDir = file("${projectDir}/../threadmonitoring/api")
+        if (apiDir.exists()) {
+            project.delete(apiDir)
+        }
     }
 }

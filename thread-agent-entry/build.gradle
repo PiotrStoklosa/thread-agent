@@ -13,30 +13,35 @@ repositories {
 }
 
 dependencies {
-    implementation files("${projectDir}/../threadmonitoring/api/agent-api-1.0.jar")
+    implementation project(':thread-agent-api')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
-jar {
+tasks.named('jar') {
     manifest {
-        attributes 'Premain-Class': 'org.threadmonitoring.ThreadAgentEntry'
-        attributes 'Agentmain-Class': 'org.threadmonitoring.ThreadAgentEntry'
-        attributes 'Can-Retransform-Classes': 'true'
-        attributes 'Class-Path': './lib'
-        attributes "Can-Redefine-Classes": "true"
-        attributes "Can-Set-Native-Method-Prefix": "true"
+        attributes(
+                'Premain-Class': 'org.threadmonitoring.ThreadAgentEntry',
+                'Agentmain-Class': 'org.threadmonitoring.ThreadAgentEntry',
+                'Can-Retransform-Classes': 'true',
+                'Class-Path': './lib',
+                'Can-Redefine-Classes': 'true',
+                'Can-Set-Native-Method-Prefix': 'true'
+        )
     }
-    destinationDirectory =  file("${projectDir}/../threadmonitoring")
-    archiveFileName = 'thread-agent.jar'
+
+    archiveFileName.set('thread-agent.jar')
+    destinationDirectory.set(file("${rootProject.projectDir}/threadmonitoring"))
 }
 
-task cleanProd(type: Delete) {
-    delete("${projectDir}/../threadmonitoring/thread-agent.jar")
+tasks.named('clean') {
+    doLast {
+        def jarFile = file("${rootProject.projectDir}/threadmonitoring/thread-agent.jar")
+        if (jarFile.exists()) {
+            project.delete(jarFile)
+        }
+    }
 }
-
-clean.dependsOn cleanProd
-
 
 test {
     useJUnitPlatform()
