@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.threadmonitoring'
+version = '1.0'
+java {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+}
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation files("${projectDir}/../threadmonitoring/api/agent-api-1.0.jar")
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+jar {
+    manifest {
+        attributes 'Premain-Class': 'org.threadmonitoring.ThreadAgentEntry'
+        attributes 'Agentmain-Class': 'org.threadmonitoring.ThreadAgentEntry'
+        attributes 'Can-Retransform-Classes': 'true'
+        attributes 'Class-Path': './lib'
+        attributes "Can-Redefine-Classes": "true"
+        attributes "Can-Set-Native-Method-Prefix": "true"
+    }
+    destinationDirectory =  file("${projectDir}/../threadmonitoring")
+    archiveFileName = 'thread-agent.jar'
+}
+
+task cleanProd(type: Delete) {
+    delete("${projectDir}/../threadmonitoring/thread-agent.jar")
+}
+
+clean.dependsOn cleanProd
+
+
+test {
+    useJUnitPlatform()
+}
