@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.threadmonitoring'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.jar {
+    archiveBaseName.set("agent-api")
+    destinationDirectory.set(file("${projectDir}/../threadmonitoring/api"))
+}
+
+tasks.named('clean') {
+    doLast {
+        def apiDir = file("${projectDir}/../threadmonitoring/api")
+        if (apiDir.exists()) {
+            project.delete(apiDir)
+        }
+    }
+}

@@ -1,2 +1,9 @@
 rootProject.name = 'thread-agent'
 
+include 'thread-agent-api'
+include 'thread-agent-entry'
+include 'monitoring-call'
+
+project(':thread-agent-api').projectDir = file('thread-agent-api')
+project(':thread-agent-entry').projectDir = file('thread-agent-entry')
+project(':monitoring-call').projectDir = file('monitoring-call')

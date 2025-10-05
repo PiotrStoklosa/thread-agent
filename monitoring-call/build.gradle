@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.threadmonitoring'
+version = '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+repositories {
+    mavenCentral()
+}
+jar {
+    destinationDirectory.set(file("${projectDir}/../threadmonitoring/lib"))
+}
+tasks.named('clean') {
+    doLast {
+        def libDir = file("${rootProject.projectDir}/threadmonitoring/lib")
+        if (libDir.exists()) {
+            libDir.listFiles()?.findAll { it.name.startsWith("monitoring-call") && it.name.endsWith(".jar") }?.each { jarFile ->
+                project.delete(jarFile)
+            }
+        }
+    }
+}
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
