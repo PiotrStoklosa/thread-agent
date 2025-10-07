@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'org.threadmonitoring'
-version = '1-3'
+version = '1.4.0'
 java {
     sourceCompatibility = '11'
     targetCompatibility = '11'
@@ -38,33 +38,22 @@ task copyConfig(type: Copy) {
 task buildAllJars {
     group = 'build'
     description = 'Builds jar for all subprojects and root project'
-
-    // upewnij się, że subprojekty są skonfigurowane
     subprojects.each { evaluationDependsOn(it.path) }
-
     dependsOn subprojects.collect { sub ->
-        // task jar musi istnieć
         if (sub.tasks.findByName('jar') != null) {
             sub.tasks.named('jar')
         }
     }.findAll { it != null }
-
     dependsOn tasks.named('jar')
 }
 
 task cleanAll(type: Delete) {
     group = 'build'
     description = 'Clean all builds and threadmonitoring folder'
-
-    // build foldery subprojektów
     subprojects.each { sub ->
         delete sub.layout.buildDirectory
     }
-
-    // build folder root
     delete layout.buildDirectory
-
-    // dodatkowy folder monitoring
     delete file("${rootProject.projectDir}/threadmonitoring")
 }
 
